@@ -3,6 +3,7 @@
 import {
   RiBookmarkLine,
   RiBox3Line,
+  RiBuildingLine,
   RiComputerLine,
   RiGroupLine,
   RiImageLine,
@@ -65,7 +66,7 @@ function SideMenu({ expanded = true }) {
           expanded ? "px-3" : "justify-content-center"
         }`}
         style={{
-          minHeight: 70,
+          minHeight: 70
         }}
       >
         <img src="/images/logo.png" width={36} height={36} alt="" />
@@ -80,7 +81,7 @@ function SideMenu({ expanded = true }) {
       <div
         className="scrollbar-none"
         style={{
-          overflowY: "auto",
+          overflowY: "auto"
         }}
       >
         <ul
@@ -110,6 +111,12 @@ function SideMenu({ expanded = true }) {
             to="/admin/categories"
             icon={<RiBookmarkLine size={!expanded ? 24 : 20} />}
             label="Categories"
+            expanded={expanded}
+          />
+          <MenuItem
+            to="/admin/markets"
+            icon={<RiBuildingLine size={!expanded ? 24 : 20} />}
+            label="Markets"
             expanded={expanded}
           />
 

@@ -20,6 +20,8 @@ export type Permission =
   | "CATEGORY_WRITE"
   | "CITY_READ"
   | "CITY_WRITE"
+  | "MARKET_READ"
+  | "MARKET_WRITE"
   | "SHOP_READ"
   | "SHOP_WRITE"
   | "PRODUCT_READ"
@@ -100,7 +102,6 @@ export interface BannerForm {
   file?: File;
 }
 
-
 export interface Category {
   id: number;
   name: string;
@@ -133,6 +134,14 @@ export interface City {
   name: string;
 }
 
+export interface Market {
+  id: number;
+  name: string;
+  slug: string;
+  url?: string;
+  shopCount?: number;
+}
+
 export interface ShopMember {
   userId: number;
   shopId: number;
@@ -148,6 +157,7 @@ export interface Shop {
   rating?: number;
   featured?: boolean;
   status?: ShopStatus;
+  market?: Market;
   city?: City;
   expiredAt?: number;
   logo?: string;
@@ -172,6 +182,7 @@ export interface ShopUpdate {
   slug?: string;
   headline?: string;
   about?: string;
+  marketId?: number;
 }
 
 export interface ShopContactUpdate {
@@ -194,6 +205,12 @@ export interface ShopStatistic {
   totalOrder: number;
   totalProduct: number;
   totalSale: number;
+}
+
+export interface ShopLicense {
+  id: number;
+  image: string;
+  file?: File;
 }
 
 export interface ShopReview {
@@ -258,8 +275,10 @@ export interface ShopCreateForm {
   logo?: string;
   cover?: string;
   cityId?: number;
+  marketId?: number;
   logoImage?: File;
   coverImage?: File;
+  licenses?: ShopLicense[];
 }
 
 export interface ShopMonthlySale {

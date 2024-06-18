@@ -257,7 +257,11 @@ function OrderPage({ shopId, orderId }: Props) {
                 </div>
                 <div className="col-lg-6">
                   <h6 className="fw-semibold mb-1">Phone</h6>
-                  <div className="text-muted">{data.delivery.phone}</div>
+                  <div>
+                    <a href={`tel:${data.delivery.phone}`}>
+                      {data.delivery.phone}
+                    </a>
+                  </div>
                 </div>
                 <div className="col-12">
                   <h6 className="fw-semibold mb-1">Address</h6>

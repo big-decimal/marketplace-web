@@ -71,7 +71,7 @@ function MerchantLayoutWrapper({
 
     if (
       (shop.expiredAt ?? 0) < currentTime &&
-      !segments.find((v) => v === "subscriptions" || v === "renew-subscription")
+      !segments.find((v) => v === "subscriptions" || v === "renew-subscription" || v === "setting")
     ) {
       return (
         <Alert

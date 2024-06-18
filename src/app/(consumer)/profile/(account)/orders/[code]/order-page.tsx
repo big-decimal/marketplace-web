@@ -18,12 +18,7 @@ import {
 } from "@/services/OrderService";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ChangeEvent,
-  useContext,
-  useRef,
-  useState
-} from "react";
+import { ChangeEvent, useContext, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import useSWR from "swr";
 
@@ -325,6 +320,22 @@ function OrderPage({ code }: { code: string }) {
                   )}
                 </div>
               </div>
+
+              <hr className="text-muted" />
+
+              <h6>Contact us</h6>
+
+              <div className="d-flex flex-wrap gap-2">
+                {data.shop?.contact?.phones?.map((p, i, ary) => {
+                  const len = ary.length;
+                  return (
+                    <span key={i}>
+                      <a href={`tel:${p}`}>{p}</a>
+                      {i < len - 1 && <span>,</span>}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -339,14 +350,10 @@ function OrderPage({ code }: { code: string }) {
           <nav aria-label="breadcrumb">
             <ol className="breadcrumb mb-0">
               <li className="breadcrumb-item">
-                <Link href="/profile">
-                  Profile
-                </Link>
+                <Link href="/profile">Profile</Link>
               </li>
               <li className="breadcrumb-item">
-                <Link href="/profile/orders">
-                  Orders
-                </Link>
+                <Link href="/profile/orders">Orders</Link>
               </li>
               <li className="breadcrumb-item active" aria-current="page">
                 {code}
@@ -437,7 +444,9 @@ function OrderPage({ code }: { code: string }) {
               <div className="modal-body p-0">
                 {data?.payment?.receiptImage ? (
                   <Image
-                    src={data.payment.receiptImage + "?t=" + new Date().getTime()}
+                    src={
+                      data.payment.receiptImage + "?t=" + new Date().getTime()
+                    }
                     alt=""
                     sizes="100vw"
                     width={0}

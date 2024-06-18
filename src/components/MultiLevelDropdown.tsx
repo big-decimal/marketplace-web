@@ -7,7 +7,7 @@ export interface MultiMenuItem {
   children?: MultiMenuItem[] | null;
 }
 
-type GetMenuLabel<T> = (t: T) => ReactNode;
+type GetMenuLabel<T> = (t: T) => string;
 
 type GetMenuLink<T> = (t: T) => string;
 
@@ -105,19 +105,33 @@ function SubMenu<T>(props: SubMenuProps<T>) {
   }
 
   return (
-    <div className="position-relative bg-white py-2 shadow-lg rounded">
-      {items.map((e, i) => {
-        return (
-          <MenuItem
-            key={i}
-            item={e}
-            getMenuLabel={getMenuLabel}
-            getSubItems={getSubItems}
-            onMenuClick={onMenuClick}
-            getMenuLink={getMenuLink}
-          />
-        );
-      })}
+    <div className="position-relative bg-white shadow-lg rounded">
+      <div
+        className="scrollbar-custom py-2"
+        style={{
+          overflowY: "auto",
+          maxHeight: "70vh"
+        }}
+      >
+        {items
+          .sort((a, b) => {
+            const labelA = getMenuLabel(a);
+            const labelB = getMenuLabel(b);
+            return labelA.localeCompare(labelB);
+          })
+          .map((e, i) => {
+            return (
+              <MenuItem
+                key={i}
+                item={e}
+                getMenuLabel={getMenuLabel}
+                getSubItems={getSubItems}
+                onMenuClick={onMenuClick}
+                getMenuLink={getMenuLink}
+              />
+            );
+          })}
+      </div>
     </div>
   );
 }

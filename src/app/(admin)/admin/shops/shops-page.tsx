@@ -1,7 +1,8 @@
 "use client";
+import { useMarkets } from "@/common/hooks";
 /* eslint-disable @next/next/no-img-element */
 import makeApiRequest from "@/common/makeApiRequest";
-import { PageData, Shop, ShopStatus } from "@/common/models";
+import { Market, PageData, Shop, ShopStatus } from "@/common/models";
 import {
   buildQueryParams,
   debounce,
@@ -13,7 +14,7 @@ import { withAuthorization } from "@/common/withAuthorization";
 import Alert from "@/components/Alert";
 import Loading from "@/components/Loading";
 import Pagination from "@/components/Pagination";
-import { Input, Select } from "@/components/forms";
+import { AutocompleteSelect, Input, Select } from "@/components/forms";
 import { RiPencilFill } from "@remixicon/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -21,7 +22,8 @@ import useSWR from "swr";
 
 export interface ShopQuery {
   q?: string;
-  "city-id"?: string;
+  "city-id"?: number;
+  "market-id"?: number;
   status?: ShopStatus;
   expired?: boolean;
   page?: number;
@@ -47,6 +49,8 @@ function ShopsPage() {
       revalidateOnFocus: false
     }
   );
+
+  const marketsState = useMarkets();
 
   const updateInput = debounce((v) => {
     setQuery((old) => {
@@ -139,7 +143,7 @@ function ShopsPage() {
                         href={`/admin/shops/${s.id}`}
                         className="btn btn-default"
                       >
-                        <RiPencilFill size={20}/>
+                        <RiPencilFill size={20} />
                       </Link>
                     </td>
                   </tr>
@@ -180,6 +184,27 @@ function ShopsPage() {
               var q = evt.target.value;
               updateInput(q);
             }}
+          />
+        </div>
+        <div className="col-12 col-md-auto">
+          <AutocompleteSelect<Market, number>
+            options={marketsState.markets?.sort((m, s) =>
+              m.name.localeCompare(s.name)
+            )}
+            isLoading={marketsState.isLoading}
+            placeholder="By market"
+            getOptionKey={(m) => m.id}
+            getOptionLabel={(m) => m.name}
+            onChange={(m) => {
+              setQuery((old) => {
+                return {
+                  ...old,
+                  "market-id": m?.id,
+                  page: undefined
+                };
+              });
+            }}
+            isClearable
           />
         </div>
         <div className="col-12 col-md-auto">
