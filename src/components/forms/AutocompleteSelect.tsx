@@ -1,12 +1,9 @@
 "use client";
-import {
-  RiArrowDropDownFill,
-  RiCloseCircleFill,
-  RiCloseFill
-} from "@remixicon/react";
+import { RiArrowDropDownFill, RiCloseFill } from "@remixicon/react";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { usePopper } from "react-popper";
 import Input from "./Input";
+import Loading from "../Loading";
 
 interface OptionProps<T, Key> {
   getOptionLabel: (op: T) => string;
@@ -27,6 +24,7 @@ interface AutocompleteSelectProps<T = string, Key = string>
   maxHeight?: number;
   error?: string;
   isClearable?: boolean;
+  isLoading?: boolean;
   formatSelectedOption?: (op: T) => string;
   onChange?: (newValue?: T) => void;
 }
@@ -108,6 +106,7 @@ function AutocompleteSelect<T, Key>(props: AutocompleteSelectProps<T, Key>) {
     maxHeight,
     formatSelectedOption,
     isClearable,
+    isLoading,
     ...optionProps
   } = props;
 
@@ -219,8 +218,14 @@ function AutocompleteSelect<T, Key>(props: AutocompleteSelectProps<T, Key>) {
     return (
       <div className="card shadow">
         <div className="card-body p-0">
-          {list.length === 0 && (
-            <div className="text-dark-gray text-center p-3">No options</div>
+          {isLoading ? (
+            <div>
+              <Loading />
+            </div>
+          ) : (
+            list.length === 0 && (
+              <div className="text-dark-gray text-center p-3">No options</div>
+            )
           )}
           {list.length > 0 && (
             <>
@@ -292,10 +297,13 @@ function AutocompleteSelect<T, Key>(props: AutocompleteSelectProps<T, Key>) {
               marginRight: 36
             }}
           >
-            <div role="button" onClick={() => {
-              props.onChange?.(undefined);
-              setSelectedOption(null);
-            }}>
+            <div
+              role="button"
+              onClick={() => {
+                props.onChange?.(undefined);
+                setSelectedOption(null);
+              }}
+            >
               <RiCloseFill size={20} className="link-dark-gray" />
             </div>
 

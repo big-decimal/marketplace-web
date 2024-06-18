@@ -1,12 +1,16 @@
+import { locale_en, locale_mm } from "@/locales/locale.config";
+import {
+  getAllCategories,
+  getCategoryBySlug
+} from "@/services/CategoryService";
+import { getAllCities } from "@/services/CityService";
+import { findDiscounts } from "@/services/DiscountService";
+import { getMarkets } from "@/services/MarketService";
 import { getProductById } from "@/services/ProductService";
 import { getPendingOrderCount, getShopById } from "@/services/ShopService";
-import useSWR from "swr";
-import { getAllCategories, getCategoryBySlug } from "@/services/CategoryService";
-import { getAllCities } from "@/services/CityService";
 import { getLoginUser } from "@/services/UserService";
-import { findDiscounts } from "@/services/DiscountService";
 import { useCallback, useContext } from "react";
-import { locale_en, locale_mm } from "@/locales/locale.config";
+import useSWR from "swr";
 import { LocalizationContext } from "./contexts";
 
 export function useCategory(slug?: string) {
@@ -53,10 +57,25 @@ export function useCities() {
   };
 }
 
-export function useLoginUser() {
-  const { data, error, isLoading, mutate } = useSWR("/login-user", getLoginUser, {
+export function useMarkets() {
+  const { data, error, isLoading } = useSWR(`/markets`, () => getMarkets({}), {
     revalidateOnFocus: false
   });
+
+  return {
+    markets: data?.contents,
+    error: error,
+    isLoading: isLoading
+  };
+}
+export function useLoginUser() {
+  const { data, error, isLoading, mutate } = useSWR(
+    "/login-user",
+    getLoginUser,
+    {
+      revalidateOnFocus: false
+    }
+  );
 
   return {
     user: data,

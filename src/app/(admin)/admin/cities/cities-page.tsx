@@ -194,7 +194,7 @@ function CityPage() {
             toast.success("City deleted successfully");
           } catch (error) {
             const msg = parseErrorResponse(error);
-            toast.error("Delete failed");
+            toast.error(msg);
           } finally {
             setCity(undefined);
             progressContext.update(false);

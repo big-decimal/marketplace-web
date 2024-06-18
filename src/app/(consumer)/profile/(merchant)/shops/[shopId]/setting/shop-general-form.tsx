@@ -1,11 +1,12 @@
-import { Shop, ShopUpdate } from "@/common/models";
+import { useMarkets } from "@/common/hooks";
+import { Market, Shop, ShopUpdate } from "@/common/models";
 import {
   parseErrorResponse,
   setEmptyOrString,
   setStringToSlug
 } from "@/common/utils";
 import ProgressButton from "@/components/ProgressButton";
-import { Input } from "@/components/forms";
+import { AutocompleteSelect, Input } from "@/components/forms";
 import { RichTextEditorInputProps } from "@/components/forms/RichTextEditor";
 import { updateShop } from "@/services/ShopService";
 import dynamic from "next/dynamic";
@@ -23,6 +24,8 @@ const DynamicEditor = dynamic<RichTextEditorInputProps>(
 const ShopGeneralForm = ({ shop }: { shop: Shop }) => {
   const { mutate } = useSWRConfig();
 
+  const marketsState = useMarkets();
+
   const {
     control,
     register,
@@ -35,7 +38,8 @@ const ShopGeneralForm = ({ shop }: { shop: Shop }) => {
       name: shop?.name,
       slug: shop?.slug,
       about: shop?.about,
-      headline: shop?.headline
+      headline: shop?.headline,
+      marketId: shop.market?.id
     }
   });
 
@@ -115,6 +119,36 @@ const ShopGeneralForm = ({ shop }: { shop: Shop }) => {
               placeholder="Enter shop headline"
               {...register("headline")}
             />
+          </div>
+
+          <div className="col-12">
+            <label className="form-label">
+              Market<span className="text-muted">(Optional)</span>
+            </label>
+            <div className="flex-grow-1">
+              <Controller
+                control={control}
+                name="marketId"
+                render={({ field }) => {
+                  return (
+                    <AutocompleteSelect<Market, number>
+                      options={marketsState.markets?.sort((f, s) =>
+                        f.name.localeCompare(s.name)
+                      )}
+                      defaultValue={shop.market}
+                      placeholder="Select market"
+                      getOptionKey={(m) => m.id}
+                      getOptionLabel={(m) => m.name}
+                      onChange={(m) => {
+                        setValue("marketId", m?.id);
+                      }}
+                      error={errors.marketId?.message}
+                      isClearable
+                    />
+                  );
+                }}
+              />
+            </div>
           </div>
 
           <div className="col-12">

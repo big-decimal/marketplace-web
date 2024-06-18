@@ -65,6 +65,7 @@ function CityEdit(props: CityEditProps) {
           type="button"
           className="btn-close shadow-none"
           aria-label="Close"
+          disabled={isSubmitting}
           onClick={() => handleClose?.()}
         ></button>
       </div>
@@ -74,7 +75,6 @@ function CityEdit(props: CityEditProps) {
           <div className="col-12">
             <Input
               label="Name *"
-              id="accountTypeInput"
               type="text"
               placeholder="Enter city name"
               {...register("name", {

@@ -6,7 +6,14 @@ const nextConfig = {
       fullUrl: true
     }
   },
+  experimental: {
+    staleTimes: {
+      dynamic: 0,
+      static: 180
+    }
+  },
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -15,7 +22,7 @@ const nextConfig = {
       {
         protocol: "http",
         hostname: "**"
-      },
+      }
     ]
   },
   // experimental: {
@@ -26,7 +33,7 @@ const nextConfig = {
       {
         source: "/profile/shops/:id",
         destination: "/profile/shops/:id/dashboard",
-        permanent: true,
+        permanent: true
       }
     ];
   }

@@ -22,6 +22,10 @@ export const permissionGroup = [
       permissions: ["Read", "Write"]
     },
     {
+      name: "Market",
+      permissions: ["Read", "Write"]
+    },
+    {
       name: "Shop",
       permissions: ["Read", "Write"]
     },

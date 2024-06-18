@@ -73,19 +73,6 @@ function Header() {
     };
   }, []);
 
-  // const localeImage = (
-  //   <Image
-  //     src={`/images/${locale}.png`}
-  //     width={28}
-  //     height={22}
-  //     alt=""
-  //     className="rounded-1"
-  //     style={{
-  //       objectFit: "cover"
-  //     }}
-  //   />
-  // );
-
   const localeImage = <span>{locale.toUpperCase()}</span>;
 
   const localeItems = (
@@ -110,7 +97,7 @@ function Header() {
           <div className="container flex-nowrap">
             <Link href="/" className="navbar-brand hstack">
               <img
-                  src="/images/logo.png"
+                  src="/images/logo-h.png"
                   alt=""
                   style={{
                     objectFit: "contain",
@@ -118,9 +105,9 @@ function Header() {
                   }}
                   className="img-fluid me-2"
                 />
-              <h3 className="fw-bold mb-0 text-secondary d-none d-md-block">
+              {/* <h3 className="fw-bold mb-0 text-secondary d-none d-md-block">
                 {process.env.NEXT_PUBLIC_APP_NAME}
-              </h3>
+              </h3> */}
             </Link>
 
             <div className="hstack flex-grow-1">

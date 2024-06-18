@@ -116,6 +116,7 @@ function ShopsPage({ query }: { query: ShopQuery }) {
                 options={citiesState.cities?.sort((f, s) =>
                   f.name.localeCompare(s.name)
                 )}
+                isLoading={citiesState.isLoading}
                 placeholder="By city"
                 getOptionKey={(c) => c.id}
                 getOptionLabel={(c) => c.name}

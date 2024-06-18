@@ -5,6 +5,7 @@ import {
   Shop,
   ShopContact,
   ShopCreateForm,
+  ShopLicense,
   ShopMonthlySale,
   ShopSetting,
   ShopStatistic,
@@ -27,10 +28,15 @@ export async function createShop(values: ShopCreateForm) {
   values.headline && formData.append("headline", values.headline);
   values.about && formData.append("about", values.about);
   values.address && formData.append("address", values.address);
+  values.marketId && formData.append("marketId", values.marketId.toString());
   values.cityId && formData.append("cityId", values.cityId.toString());
   formData.append("cashOnDelivery", "true");
   values.logoImage && formData.append("logo", values.logoImage);
   values.coverImage && formData.append("cover", values.coverImage);
+
+  values.licenses?.forEach((l, i) => {
+    l.file && formData.append(`licenses[${i}]`, l.file);
+  });
 
   const resp = await makeApiRequest({
     url,
@@ -230,4 +236,45 @@ export async function getMonthlySale(shopId: number, year: number) {
   await validateResponse(resp);
 
   return resp.json() as Promise<ShopMonthlySale[]>;
+}
+
+export async function uploadShopLicense(shopId: number, file: File) {
+  const url = `/vendor/shops/${shopId}/licenses`;
+  const form = new FormData();
+  form.append("file", file);
+
+  const resp = await makeApiRequest({
+    url,
+    options: {
+      method: "POST",
+      body: form
+    },
+    authenticated: true
+  });
+
+  await validateResponse(resp);
+}
+
+export async function deleteShopLicense(shopId: number, id: number) {
+  const url = `/vendor/shops/${shopId}/licenses/${id}`;
+
+  const resp = await makeApiRequest({
+    url,
+    options: {
+      method: "DELETE"
+    },
+    authenticated: true
+  });
+
+  await validateResponse(resp);
+}
+
+export async function getShopLicenses(shopId: number) {
+  const url = `/vendor/shops/${shopId}/licenses`;
+
+  const resp = await makeApiRequest({ url, authenticated: true });
+
+  await validateResponse(resp);
+
+  return resp.json() as Promise<ShopLicense[]>;
 }

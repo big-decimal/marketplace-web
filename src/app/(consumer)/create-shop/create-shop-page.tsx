@@ -1,7 +1,7 @@
 "use client";
 import { withAuthentication } from "@/common/WithAuthentication";
-import { useCities } from "@/common/hooks";
-import { City, ShopCreateForm } from "@/common/models";
+import { useCities, useMarkets } from "@/common/hooks";
+import { City, Market, ShopCreateForm } from "@/common/models";
 import {
   parseErrorResponse,
   setEmptyOrString,
@@ -11,12 +11,13 @@ import ProgressButton from "@/components/ProgressButton";
 import { AutocompleteSelect, Input } from "@/components/forms";
 import { RichTextEditorInputProps } from "@/components/forms/RichTextEditor";
 import { createShop } from "@/services/ShopService";
+import { RiDeleteBin6Line } from "@remixicon/react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CSSProperties, ChangeEvent, useRef, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 const DynamicEditor = dynamic<RichTextEditorInputProps>(
@@ -33,8 +34,11 @@ function CreateShopPage() {
 
   const logoRef = useRef<HTMLInputElement>(null);
   const coverRef = useRef<HTMLInputElement>(null);
+  const licenseRef = useRef<HTMLInputElement>(null);
 
   const citiesState = useCities();
+
+  const marketsState = useMarkets();
 
   const {
     register,
@@ -44,6 +48,12 @@ function CreateShopPage() {
     control
   } = useForm<ShopCreateForm>({ defaultValues: { cashOnDelivery: true } });
 
+  const { fields, append, remove } = useFieldArray({
+    control: control,
+    name: "licenses",
+    keyName: "vId"
+  });
+
   function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     try {
       let files = event.target.files;
@@ -52,7 +62,14 @@ function CreateShopPage() {
         let file = files[0];
         const fileSize = file.size / (1024 * 1024);
 
-        const limit = name === "logo" ? 0.36 : 0.512;
+        let limit = 1;
+        if (name === "logo") {
+          limit = 0.36;
+        }
+        if (name === "cover") {
+          limit = 0.512;
+        }
+
         if (fileSize > limit) {
           throw `File size must not greater than ${limit * 1000}KB`;
         }
@@ -69,7 +86,15 @@ function CreateShopPage() {
             setValue("logo", result as string);
           } else if (name === "cover" && coverRef.current) {
             setValue("cover", result as string);
+          } else if (name === "license" && licenseRef.current) {
+            append({
+              id: 0,
+              image: result as string,
+              file: file
+            });
           }
+
+          event.target.value = "";
         };
         reader.readAsDataURL(file);
 
@@ -84,7 +109,7 @@ function CreateShopPage() {
       toast.error(msg);
       event.target.value = "";
     } finally {
-      //event.target.value = "";
+      
     }
   }
 
@@ -199,11 +224,6 @@ function CreateShopPage() {
                               }}
                               error={error?.message}
                             />
-                            {/* {!error?.message && (
-                              <small className="text-muted">{`${
-                                window.location.origin
-                              }/shops/${field.value ?? ""}`}</small>
-                            )} */}
                           </>
                         );
                       }}
@@ -230,6 +250,35 @@ function CreateShopPage() {
                       placeholder="Enter shop headline"
                       {...register("headline")}
                     />
+                  </div>
+
+                  <div className="col-12">
+                    <label className="form-label">
+                      Market<span className="text-muted">(Optional)</span>
+                    </label>
+                    <div className="flex-grow-1">
+                      <Controller
+                        control={control}
+                        name="marketId"
+                        render={({ field }) => {
+                          return (
+                            <AutocompleteSelect<Market, number>
+                              options={marketsState.markets?.sort((f, s) =>
+                                f.name.localeCompare(s.name)
+                              )}
+                              placeholder="Select market"
+                              getOptionKey={(m) => m.id}
+                              getOptionLabel={(m) => m.name}
+                              onChange={(m) => {
+                                setValue("marketId", m?.id);
+                              }}
+                              isClearable
+                              error={errors.marketId?.message}
+                            />
+                          );
+                        }}
+                      />
+                    </div>
                   </div>
 
                   <div className="col-12">
@@ -295,6 +344,64 @@ function CreateShopPage() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+            <div className="card mb-3">
+              <div className="card-header py-2h">
+                <h4 className="mb-0">Licenses</h4>
+              </div>
+
+              <div className="card-body">
+                <div className="d-flex flex-wrap gap-3">
+                  {fields?.map((l, i) => {
+                    return (
+                      <div key={i} className="position-relative">
+                        <Image
+                          src={l.image}
+                          width={150}
+                          height={150}
+                          alt=""
+                          style={{
+                            objectFit: "contain"
+                          }}
+                          className="rounded border"
+                        />
+
+                        <div className="position-absolute top-0 end-0 m-2 d-flex gap-2">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-danger"
+                            onClick={() => {
+                              remove(i);
+                            }}
+                          >
+                            <RiDeleteBin6Line size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {fields.length < 2 && (
+                  <button
+                    className="btn btn-primary mt-3"
+                    onClick={() => {
+                      licenseRef.current?.click();
+                    }}
+                  >
+                    Upload
+                  </button>
+                )}
+
+                <input
+                  ref={licenseRef}
+                  onChange={handleImageChange}
+                  name="license"
+                  className="d-none"
+                  type="file"
+                  accept="image/x-png,image/jpeg"
+                />
               </div>
             </div>
           </div>

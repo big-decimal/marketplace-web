@@ -1,19 +1,20 @@
 "use client";
-import { useContext, useState } from "react";
-import { toast } from "react-toastify";
-import useSWR from "swr";
+import { ProgressContext } from "@/common/contexts";
+import makeApiRequest from "@/common/makeApiRequest";
 import { Shop, ShopStatus } from "@/common/models";
 import { parseErrorResponse, validateResponse } from "@/common/utils";
+import { withAuthorization } from "@/common/withAuthorization";
 import Alert from "@/components/Alert";
 import ConfirmModal from "@/components/ConfirmModal";
 import Dropdown from "@/components/Dropdown";
 import Loading from "@/components/Loading";
-import ShopHeading from "./ShopHeading";
-import Link from "next/link";
-import { withAuthorization } from "@/common/withAuthorization";
-import makeApiRequest from "@/common/makeApiRequest";
 import { RiExternalLinkLine } from "@remixicon/react";
-import { ProgressContext } from "@/common/contexts";
+import Link from "next/link";
+import { useContext, useState } from "react";
+import { toast } from "react-toastify";
+import useSWR from "swr";
+import ShopHeading from "./ShopHeading";
+import ShopLicenses from "./shop-licenses";
 
 const getShopById = async (shopId: number) => {
   const url = `/admin/shops/${shopId}`;
@@ -163,28 +164,6 @@ function ShopPage({ shopId }: { shopId: number }) {
 
       <div className="position-relative border rounded bg-white vstack overflow-hidden mb-3">
         <ShopHeading shop={data} />
-        {/* <div className="border-top">
-                  <Tabs
-                    defaultTabKey="products"
-                    onTabChange={(key) => {
-                      setActiveTab(key as PageTab);
-                    }}
-                  >
-                    <Tabs.Tab tabKey="products" title="Products">
-                      <div></div>
-                    </Tabs.Tab>
-                    <Tabs.Tab tabKey="reviews" title="Reviews">
-                      <div></div>
-                    </Tabs.Tab>
-                    <Tabs.Tab
-                      tabKey="about-us"
-                      title="About us"
-                      tabClassName="text-nowrap"
-                    >
-                      <div></div>
-                    </Tabs.Tab>
-                  </Tabs>
-                </div> */}
       </div>
 
       <div className="row g-3">
@@ -202,21 +181,30 @@ function ShopPage({ shopId }: { shopId: number }) {
                   </span>
                 </dd>
 
+                <dt className="col-12">Market</dt>
+                <dd className="col-12">
+                  <span className="text-muted">
+                    {data.market?.name ?? "--"}
+                  </span>
+                </dd>
+
                 <dt className="col-12">City</dt>
                 <dd className="col-12">
-                  <span className="text-muted">{data.city?.name}</span>
+                  <span className="text-muted">{data.city?.name ?? "--"}</span>
                 </dd>
 
                 <dt className="col-12">Address</dt>
                 <dd className="col-12 mb-0">
-                  <p className="text-muted mb-0">{data.contact?.address}</p>
+                  <p className="text-muted mb-0">
+                    {data.contact?.address ?? "--"}
+                  </p>
                 </dd>
               </dl>
             </div>
           </div>
         </div>
         <div className="col-lg-8">
-          <div className="card">
+          <div className="card mb-3">
             <div className="card-header py-3">
               <h5 className="mb-0">About</h5>
             </div>
@@ -225,6 +213,7 @@ function ShopPage({ shopId }: { shopId: number }) {
               <div dangerouslySetInnerHTML={{ __html: data.about ?? "" }}></div>
             </div>
           </div>
+          <ShopLicenses shopId={shopId} />
         </div>
       </div>
 
