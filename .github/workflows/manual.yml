@@ -63,7 +63,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         script: |
-          pm2 restart marketplace-web
+          ./opt/marketplace/frontend/pm2_runner.sh
 
   report:
     if: ${{ always() }}
@@ -108,4 +108,5 @@ jobs:
           }
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
