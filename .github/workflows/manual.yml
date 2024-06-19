@@ -63,7 +63,6 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         script: |
-          exec bash \-l
           cd /opt/marketplace/frontend/
           ./pm2_runner.sh
 
