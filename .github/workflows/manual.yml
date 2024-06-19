@@ -95,11 +95,11 @@ jobs:
           				},
           				{
           					"type": "plain_text",
-          					"text": "${{ jobs.build.result }}"
+          					"text": "${{ needs.build.result }}"
           				},
           				{
           					"type": "plain_text",
-          					"text": "${{ jobs.deploy.result }}"
+          					"text": "${{ needs.deploy.result }}"
           				}
           			]
           		}
