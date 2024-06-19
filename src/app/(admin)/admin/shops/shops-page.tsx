@@ -1,8 +1,8 @@
 "use client";
-import { useMarkets } from "@/common/hooks";
+import { useCities, useMarkets } from "@/common/hooks";
 /* eslint-disable @next/next/no-img-element */
 import makeApiRequest from "@/common/makeApiRequest";
-import { Market, PageData, Shop, ShopStatus } from "@/common/models";
+import { City, Market, PageData, Shop, ShopStatus } from "@/common/models";
 import {
   buildQueryParams,
   debounce,
@@ -49,6 +49,8 @@ function ShopsPage() {
       revalidateOnFocus: false
     }
   );
+
+  const citiesState = useCities();
 
   const marketsState = useMarkets();
 
@@ -187,9 +189,30 @@ function ShopsPage() {
           />
         </div>
         <div className="col-12 col-md-auto">
+          <AutocompleteSelect<City, number>
+            options={citiesState.cities?.sort((a, b) =>
+              a.name.localeCompare(b.name)
+            )}
+            isLoading={citiesState.isLoading}
+            placeholder="By city"
+            getOptionKey={(c) => c.id}
+            getOptionLabel={(c) => c.name}
+            onChange={(c) => {
+              setQuery((old) => {
+                return {
+                  ...old,
+                  "city-id": c?.id,
+                  page: undefined
+                };
+              });
+            }}
+            isClearable
+          />
+        </div>
+        <div className="col-12 col-md-auto">
           <AutocompleteSelect<Market, number>
-            options={marketsState.markets?.sort((m, s) =>
-              m.name.localeCompare(s.name)
+            options={marketsState.markets?.sort((a, b) =>
+              a.name.localeCompare(b.name)
             )}
             isLoading={marketsState.isLoading}
             placeholder="By market"
