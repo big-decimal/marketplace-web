@@ -9,7 +9,7 @@ export default async function Markets() {
     const data = await getMarkets({});
 
     return (
-      <>
+      <div className="mb-5">
         <div className="header-bar">
           <div className="container">
             <div className="row py-4 px-2">
@@ -36,7 +36,7 @@ export default async function Markets() {
             </div>
           </div>
         </div>
-        <div className="container py-3 mb-5">
+        <div className="container py-3">
           <div className="row">
             <div className="col-12">
               <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxxl-4 g-4">
@@ -66,7 +66,7 @@ export default async function Markets() {
             </div>
           </div>
         </div>
-      </>
+      </div>
     );
   } catch (error) {
     return (
