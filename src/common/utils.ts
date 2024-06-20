@@ -255,3 +255,11 @@ export function getCategoryName(locale: string, category?: Category) {
 
   return localizedName;
 }
+
+export function pluralize(count: number, label: string, plural?: string) {
+  if (count > 1) {
+    return `${formatNumber(count)} ${plural ? plural : label + "s"}`;
+  }
+
+  return `${formatNumber(count)} ${label}`;
+}

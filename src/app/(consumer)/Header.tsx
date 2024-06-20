@@ -10,6 +10,7 @@ import { ShoppingCartView } from "@/components/checkout";
 import { Input, Select } from "@/components/forms";
 import {
   RiAddCircleLine,
+  RiBuildingLine,
   RiCloseLine,
   RiSearchLine,
   RiStore3Line
@@ -225,6 +226,17 @@ function Header() {
                           className="me-1 d-none d-lg-block"
                         />
                         {localize("shops")}
+                      </div>
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink href="/markets">
+                      <div className="hstack">
+                        <RiBuildingLine
+                          size={20}
+                          className="me-1 d-none d-lg-block"
+                        />
+                        {localize("markets")}
                       </div>
                     </NavLink>
                   </li>

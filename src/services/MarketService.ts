@@ -11,7 +11,12 @@ export async function getMarkets(query: MarketQuery) {
   const q = buildQueryParams({ ...query });
   const url = `/content/markets${q}`;
 
-  const resp = await makeApiRequest({ url });
+  const resp = await makeApiRequest({
+    url,
+    options: {
+      cache: "no-store"
+    }
+  });
 
   await validateResponse(resp);
 

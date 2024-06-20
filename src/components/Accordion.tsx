@@ -1,5 +1,5 @@
 import { RiAddFill, RiArrowDownFill, RiSubtractFill } from "@remixicon/react";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 interface AccordionProps {
   header: (open: boolean) => ReactNode;
@@ -20,8 +20,27 @@ function Accordion(props: AccordionProps) {
     children
   } = props;
 
+  const [containerElement, setContainerElement] =
+    useState<HTMLDivElement | null>(null);
   const [bodyElement, setBodyElement] = useState<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(open ?? false);
+
+  useEffect(() => {
+    if (!containerElement) {
+      return;
+    }
+    if (isOpen) {
+      containerElement.style.height = `${bodyElement?.scrollHeight ?? 0}px`;
+      setTimeout(() => {
+        containerElement.style.height = "";
+      }, 250);
+    } else {
+      containerElement.style.height = `${bodyElement?.scrollHeight ?? 0}px`;
+      setTimeout(() => {
+        containerElement.style.height = "0px";
+      }, 10);
+    }
+  }, [isOpen, containerElement]);
 
   return (
     <>
@@ -69,21 +88,16 @@ function Accordion(props: AccordionProps) {
           </div>
         )}
       </div>
-      <div>
-        <div
-          style={{
-            overflowY: "clip",
-            height: `${
-              isOpen
-                ? `${bodyElement ? bodyElement.clientHeight + "px" : undefined}`
-                : "0px"
-            }`,
-            transition: "height 0.25s ease-in"
-          }}
-        >
-          <div ref={setBodyElement} className={`${bodyClassName ?? ""}`}>
-            {children}
-          </div>
+      <div
+        ref={setContainerElement}
+        style={{
+          overflow: "clip",
+          height: 0,
+          transition: "height 0.25s ease"
+        }}
+      >
+        <div ref={setBodyElement} className={`${bodyClassName ?? ""}`}>
+          {children}
         </div>
       </div>
     </>

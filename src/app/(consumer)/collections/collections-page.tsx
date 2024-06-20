@@ -17,11 +17,18 @@ interface CollectionItemProps {
 }
 
 const CollectionItem = ({ item, locale, onClick }: CollectionItemProps) => {
+  const router = useRouter();
   return (
     <div
       role="button"
       className="vstack gap-1 py-2 px-1 align-items-center"
-      onClick={() => onClick?.(item)}
+      onClick={() => {
+        if (item.children && item.children.length > 0) {
+          onClick?.(item);
+        } else {
+          router.push(`/collections/${item.slug}`);
+        }
+      }}
     >
       {item?.image ? (
         <Image
@@ -82,10 +89,10 @@ function CollectionsPage() {
 
   return (
     <div className="h-100 bg-white d-block d-lg-none">
-      <div className="row g-0 h-100">
+      <div className="position-relative" style={{ minHeight: "50vh" }}>
         <div
-          className="col-auto h-100 border-end border-light-gray"
-          style={{ width: 108 }}
+          className="position-absolute start-0 top-0 end-0 bottom-0 border-end border-light-gray"
+          style={{ width: 108, overflowY: "auto", overflowX: "hidden" }}
         >
           <ul className="list-group list-group-flush">
             {categories
@@ -104,63 +111,60 @@ function CollectionsPage() {
           </ul>
         </div>
         <div
-          className="col h-100 scrollbar-none"
-          style={{ overflowY: "auto", overflowX: "hidden" }}
+          className="position-absolute top-0 end-0 bottom-0"
+          style={{ overflowY: "auto", overflowX: "hidden", left: 108 }}
         >
-          <div className="position-relative" style={{ height: "70vh" }}>
-            <div className="vstack position-absolute top-0 bottom-0 start-0 end-0">
-              {category?.children
-                ?.sort((a, b) => sortByName(a, b))
-                .map((e, i) => {
-                  if (!e.children || e.children.length === 0) {
-                    return (
-                      <div
-                        key={i}
-                        role="button"
-                        className="fw-semibold px-3 py-2h border-bottom bg-white"
-                        onClick={() => {
-                          router.push(`/collections/${e.slug}`);
-                        }}
-                      >
-                        <div className="text-truncate">{e.name}</div>
-                      </div>
-                    );
-                  }
+          <div className="vstack">
+            {category?.children
+              ?.sort((a, b) => sortByName(a, b))
+              .map((e, i) => {
+                if (!e.children || e.children.length === 0) {
                   return (
-                    <Accordion
+                    <div
                       key={i}
-                      open={false}
-                      header={(open) => {
+                      role="button"
+                      className="fw-semibold px-3 py-2h border-bottom bg-white"
+                      onClick={() => {
+                        router.push(`/collections/${e.slug}`);
+                      }}
+                    >
+                      <div className="text-truncate">{e.name}</div>
+                    </div>
+                  );
+                }
+                return (
+                  <Accordion
+                    key={i}
+                    open={false}
+                    header={(open) => {
+                      return (
+                        <div className="fw-semibold text-truncate">
+                          {getCategoryName(locale, e)}
+                        </div>
+                      );
+                    }}
+                    headerClassName="px-3 py-2h border-bottom"
+                    iconType="plus-minus"
+                    bodyClassName="row row-cols-2 row-cols-sm-3 row-cols-md-4 border-bottom"
+                  >
+                    {e.children
+                      .sort((a, b) => sortByName(a, b))
+                      .map((c, i) => {
                         return (
-                          <div className="fw-semibold text-truncate">
-                            {getCategoryName(locale, e)}
+                          <div key={i} className="col p-2">
+                            <CollectionItem
+                              item={c}
+                              locale={locale}
+                              onClick={(item) => {
+                                router.push(`/collections/${item?.slug}`);
+                              }}
+                            />
                           </div>
                         );
-                      }}
-                      headerClassName="px-3 py-2h border-bottom"
-                      iconType="plus-minus"
-                    >
-                      <div className="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 border-bottom">
-                        {e.children
-                          .sort((a, b) => sortByName(a, b))
-                          .map((c, i) => {
-                            return (
-                              <div key={i} className="col">
-                                <CollectionItem
-                                  item={c}
-                                  locale={locale}
-                                  onClick={(item) => {
-                                    router.push(`/collections/${item?.slug}`);
-                                  }}
-                                />
-                              </div>
-                            );
-                          })}
-                      </div>
-                    </Accordion>
-                  );
-                })}
-            </div>
+                      })}
+                  </Accordion>
+                );
+              })}
           </div>
         </div>
       </div>
