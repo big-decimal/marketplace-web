@@ -37,28 +37,34 @@ export default async function Markets() {
           </div>
         </div>
         <div className="container py-3 mb-5">
-          <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxxl-4 g-4">
-            {data.contents.map((m, i) => {
-              return (
-                <a
-                  key={i}
-                  className="col text-decoration-none"
-                  href={m.url ? m.url : undefined}
-                  target="_blank"
-                >
-                  <div className="card h-100">
-                    <div className="card-body py-4">
-                      <h5 className="text-center">{m.name}</h5>
-                      <div className="text-muted text-center">
-                        {pluralize(m.shopCount ?? 0, "shop")}
+          <div className="row">
+            <div className="col-12">
+              <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxxl-4 g-4">
+                {data.contents.map((m, i) => {
+                  return (
+                    <a
+                      key={i}
+                      className="col text-decoration-none"
+                      href={m.url ? m.url : undefined}
+                      target="_blank"
+                    >
+                      <div className="card h-100">
+                        <div className="card-body py-4">
+                          <h5 className="text-center">{m.name}</h5>
+                          <div className="text-muted text-center">
+                            {pluralize(m.shopCount ?? 0, "shop")}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </a>
-              );
-            })}
+                    </a>
+                  );
+                })}
+              </div>
+              {data.contents.length === 0 && (
+                <Alert message="No markets found" />
+              )}
+            </div>
           </div>
-          {data.contents.length === 0 && <Alert message="No markets found" />}
         </div>
       </>
     );
