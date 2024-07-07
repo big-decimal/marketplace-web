@@ -26,7 +26,7 @@ const ShopLicenseForm = ({ shopId }: { shopId: number }) => {
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const { data, error, isLoading, mutate } = useSWR(
-    `/vendor/shops/${shopId}/licenses`,
+    `/content/shops/${shopId}/licenses`,
     () => getShopLicenses(shopId),
     {
       revalidateOnFocus: false

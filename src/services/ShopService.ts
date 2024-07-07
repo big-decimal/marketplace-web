@@ -272,9 +272,9 @@ export async function deleteShopLicense(shopId: number, id: number) {
 }
 
 export async function getShopLicenses(shopId: number) {
-  const url = `/vendor/shops/${shopId}/licenses`;
+  const url = `/content/shops/${shopId}/licenses`;
 
-  const resp = await makeApiRequest({ url, authenticated: true });
+  const resp = await makeApiRequest({ url });
 
   await validateResponse(resp);
 

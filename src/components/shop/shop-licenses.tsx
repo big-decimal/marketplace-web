@@ -14,7 +14,7 @@ const ShopLicenses = ({ shopId }: { shopId: number }) => {
   const [showFull, setShowFull] = useState(false);
 
   const { data, error, isLoading } = useSWR(
-    `/vendor/shops/${shopId}/licenses`,
+    `/content/shops/${shopId}/licenses`,
     () => getShopLicenses(shopId),
     {
       revalidateOnFocus: false
