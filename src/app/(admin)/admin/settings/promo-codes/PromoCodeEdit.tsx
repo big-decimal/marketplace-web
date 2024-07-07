@@ -135,7 +135,7 @@ function PromoCodeEdit({ id }: { id: number }) {
                     <Input
                       id="codeInput"
                       type="text"
-                      readonly
+                      readOnly
                       disabled={data?.used ?? false}
                       placeholder="Enter promo code"
                       className={`${errors.code?.message ? "is-invalid" : ""}`}

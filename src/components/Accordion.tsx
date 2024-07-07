@@ -40,7 +40,7 @@ function Accordion(props: AccordionProps) {
         containerElement.style.height = "0px";
       }, 10);
     }
-  }, [isOpen, containerElement]);
+  }, [isOpen, containerElement, bodyElement]);
 
   return (
     <>
