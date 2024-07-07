@@ -1,6 +1,6 @@
 "use client";
-import ChangePassword from "./ChangePassword";
-import ProfileUpdate from "./ProfileUpdate";
+import ChangePassword from "./change-password";
+import ProfileUpdate from "./profile-update";
 
 function SettingPage() {
   return (

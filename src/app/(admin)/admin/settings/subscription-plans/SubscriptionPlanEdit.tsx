@@ -11,7 +11,7 @@ import {
 import { Input, Select } from "@/components/forms";
 import ProgressButton from "@/components/ProgressButton";
 import useSWR from "swr";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import Link from "next/link";
 import Loading from "@/components/Loading";
 import Alert from "@/components/Alert";

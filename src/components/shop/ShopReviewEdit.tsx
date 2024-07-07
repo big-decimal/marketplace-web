@@ -60,8 +60,8 @@ function ShopReviewEdit(props: ShopReviewEditProps) {
         return;
       }
 
-      if (!authContext.user?.emailVerified) {
-        router.push("/verify-email");
+      if (!authContext.user?.phoneNumberVerified) {
+        router.push("/verify-phone");
         return;
       }
 

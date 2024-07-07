@@ -1,4 +1,4 @@
-import makeApiRequest from "../common/makeApiRequest";
+import makeApiRequest from "../common/make-api-request";
 import { ShopAcceptedPayment } from "../common/models";
 import { validateResponse } from "../common/utils";
 

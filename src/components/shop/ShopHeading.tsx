@@ -184,7 +184,7 @@ function ShopHeading(props: ShopHeadingProps) {
         name="logo"
         className="d-none"
         type="file"
-        accept="image/x-png,image/jpeg"
+        accept="image/x-png,image/jpeg,image/png"
       />
 
       <input
@@ -193,7 +193,7 @@ function ShopHeading(props: ShopHeadingProps) {
         name="cover"
         className="d-none"
         type="file"
-        accept="image/x-png,image/jpeg"
+        accept="image/x-png,image/jpeg,image/png"
       />
     </>
   );

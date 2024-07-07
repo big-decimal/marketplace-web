@@ -1,6 +1,6 @@
 "use client";
 import { ShopSubscription } from "@/common/models";
-import { formatTimestamp } from "@/common/utils";
+import { formatTimestamp, parseErrorResponse } from "@/common/utils";
 import Alert from "@/components/Alert";
 import Loading from "@/components/Loading";
 import { getActiveSubscriptions } from "@/services/SubscriptionService";
@@ -44,7 +44,7 @@ function SubscriptionsPage(props: ShopSubscriptionProps) {
     }
 
     if (error) {
-      return <Alert message={error} variant="danger" />;
+      return <Alert message={parseErrorResponse(error)} variant="danger" />;
     }
 
     if (!data || data.length === 0) {

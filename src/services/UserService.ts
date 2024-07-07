@@ -1,8 +1,6 @@
-import { firebaseAuth } from "@/common/firebase.config";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { User, UserEdit, UserStatistic } from "@/common/models";
 import { validateResponse } from "@/common/utils";
-import { updateProfile } from "firebase/auth";
 
 export async function updateUser(values: UserEdit) {
   const url = `/profile`;
@@ -18,21 +16,6 @@ export async function updateUser(values: UserEdit) {
     },
     authenticated: true
   });
-
-  const auth = firebaseAuth;
-
-  let retry = 0;
-
-  do {
-    try {
-      await updateProfile(auth.currentUser!, {
-        displayName: values.name
-      });
-      retry = 3;
-    } catch (error) {
-      retry += 1;
-    }
-  } while (retry < 3);
 
   await validateResponse(resp);
 }
@@ -76,4 +59,18 @@ export async function getUserStatistic() {
   await validateResponse(resp);
 
   return (await resp.json()) as UserStatistic;
+}
+
+export async function verifyPhoneNumber(userId: number) {
+  const url = `/admin/users/${userId}/verify-phone-number`;
+
+  const resp = await makeApiRequest({
+    url,
+    options: {
+      method: "PUT"
+    },
+    authenticated: true
+  });
+
+  await validateResponse(resp);
 }

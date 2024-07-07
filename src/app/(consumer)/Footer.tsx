@@ -98,13 +98,6 @@ function Footer() {
                 >
                   <RiFacebookBoxFill />
                 </a>
-                <a
-                  href="https://www.instagram.com"
-                  className="dark-link text-decoration-none"
-                  target="_blank"
-                >
-                  <RiInstagramLine />
-                </a>
               </div>
             </div>
           </div>

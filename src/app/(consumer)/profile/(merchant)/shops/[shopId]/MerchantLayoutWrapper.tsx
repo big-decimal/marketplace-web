@@ -1,6 +1,6 @@
 "use client";
 import { withAuthentication } from "@/common/WithAuthentication";
-import { APIError, ForbiddenError } from "@/common/customs";
+import { ForbiddenError } from "@/common/customs";
 import { useShop } from "@/common/hooks";
 import { parseErrorResponse } from "@/common/utils";
 import Alert from "@/components/Alert";

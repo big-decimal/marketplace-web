@@ -21,7 +21,7 @@ import Modal from "@/components/Modal";
 import Pagination from "@/components/Pagination";
 import Tooltip from "@/components/Tooltip";
 import { withAuthorization } from "@/common/withAuthorization";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { RiEyeFill } from "@remixicon/react";
 import Link from "next/link";
 import SubscriptionTransactionDetail from "./SubscriptionTransactionDetail";

@@ -2,8 +2,8 @@
 import { RiArrowDropDownFill, RiCloseFill } from "@remixicon/react";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { usePopper } from "react-popper";
-import Input from "./Input";
 import Loading from "../Loading";
+import Input from "./Input";
 
 interface OptionProps<T, Key> {
   getOptionLabel: (op: T) => string;

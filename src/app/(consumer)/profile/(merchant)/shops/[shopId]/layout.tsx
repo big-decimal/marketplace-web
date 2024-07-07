@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 import MerchantLayoutWrapper from "./MerchantLayoutWrapper";
 
-export default function MerchantLayout({
+export default async function MerchantLayout({
   children,
   params
 }: {

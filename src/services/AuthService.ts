@@ -1,104 +1,49 @@
-import { UnauthorizeError } from "@/common/customs";
-import { firebaseAuth } from "@/common/firebase.config";
-import {
-  FacebookAuthProvider,
-  GoogleAuthProvider,
-  applyActionCode,
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  updateProfile
-} from "firebase/auth";
+import makeApiRequest from "@/common/make-api-request";
+import { validateResponse } from "@/common/utils";
 
-export async function login({
-  username,
-  password
-}: {
-  username: string;
-  password: string;
-}) {
-  const auth = firebaseAuth;
+export async function changePassword(body: any) {
+  const url = `/auth/change-password`;
 
-  return await signInWithEmailAndPassword(auth, username, password);
+  const resp = await makeApiRequest({
+    url: url,
+    options: {
+      method: "PUT",
+      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    },
+    authenticated: true
+  });
+
+  await validateResponse(resp);
 }
 
-export async function googleLogin() {
-  const provider = new GoogleAuthProvider();
-  const auth = firebaseAuth;
-  return await signInWithPopup(auth, provider);
+export async function verifyPhone(requestId: number, code: string) {
+  const url = `/auth/verify-phone?requestId=${requestId}&code=${code}`;
+
+  const resp = await makeApiRequest({
+    url: url,
+    authenticated: true
+  });
+
+  await validateResponse(resp);
 }
 
-export async function facebookLogin() {
-  const provider = new FacebookAuthProvider();
-  const auth = firebaseAuth;
-  return await signInWithPopup(auth, provider);
-}
+export async function changePhone(body: any) {
+  const url = `/auth/change-phone`;
 
-export async function signUp({
-  name,
-  email,
-  password
-}: {
-  name: string;
-  email: string;
-  password: string;
-}) {
-  const auth = firebaseAuth;
+  const resp = await makeApiRequest({
+    url: url,
+    options: {
+      method: "PUT",
+      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    },
+    authenticated: true
+  });
 
-  const result = await createUserWithEmailAndPassword(auth, email, password);
-
-  sendEmailVerification(result.user);
-
-  let retry = 0;
-
-  do {
-    try {
-      await updateProfile(result.user, {
-        displayName: name
-      });
-      retry = 3;
-    } catch (error) {
-      retry += 1;
-    }
-  } while (retry < 3);
-
-  await result.user.reload();
-
-  // For triggering onAuthStateChanged
-  await auth.updateCurrentUser(null);
-
-  await auth.updateCurrentUser(result.user);
-
-  return result;
-}
-
-export async function signOut() {
-  const auth = firebaseAuth;
-
-  if (!auth.currentUser) {
-    throw new UnauthorizeError();
-  }
-
-  await auth.signOut();
-}
-
-export async function verifyEmail({
-  code
-}: {
-  code: string;
-}) {
-  const auth = firebaseAuth;
-
-  await applyActionCode(auth, code);
-}
-
-export async function sendVerifyEmail() {
-  const auth = firebaseAuth;
-
-  if (!auth.currentUser) {
-    throw new UnauthorizeError();
-  }
-
-  sendEmailVerification(auth.currentUser);
+  await validateResponse(resp);
 }

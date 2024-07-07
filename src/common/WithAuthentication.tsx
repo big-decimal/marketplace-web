@@ -28,8 +28,8 @@ export function withAuthentication<P extends {}>(
       if (status === "unauthorized") {
         router.push("/login");
         setCalledPush(true);
-      } else if (status === "success" && !user?.emailVerified) {
-        router.push("/verify-email");
+      } else if (status === "success" && !user?.phoneNumberVerified) {
+        router.push("/verify-phone");
         setCalledPush(true);
       }
     }, [calledPush, router, status, user]);
@@ -80,7 +80,7 @@ export function withAuthentication<P extends {}>(
       return null;
     }
 
-    if (!user.emailVerified) {
+    if (!user.phoneNumberVerified) {
       return null;
     }
 

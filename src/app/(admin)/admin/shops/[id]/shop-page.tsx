@@ -1,6 +1,6 @@
 "use client";
 import { ProgressContext } from "@/common/contexts";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { Shop, ShopStatus } from "@/common/models";
 import { parseErrorResponse, validateResponse } from "@/common/utils";
 import { withAuthorization } from "@/common/withAuthorization";
@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import useSWR from "swr";
 import ShopHeading from "./ShopHeading";
 import ShopLicenses from "./shop-licenses";
+import ShopMembers from "./shop-members";
 
 const getShopById = async (shopId: number) => {
   const url = `/admin/shops/${shopId}`;
@@ -168,7 +169,7 @@ function ShopPage({ shopId }: { shopId: number }) {
 
       <div className="row g-3">
         <div className="col-lg-4">
-          <div className="card">
+          <div className="card mb-3">
             <div className="card-body">
               <dl className="row mb-0">
                 <dt className="col-12">Status</dt>
@@ -200,6 +201,14 @@ function ShopPage({ shopId }: { shopId: number }) {
                   </p>
                 </dd>
               </dl>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-header py-3">
+              <h5 className="mb-0">Members</h5>
+            </div>
+            <div className="card-body p-0">
+              <ShopMembers shopId={shopId} />
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 import { AuthenticationContext, ProgressContext } from "@/common/contexts";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { PageData, User } from "@/common/models";
 import {
   buildQueryParams,

@@ -1,6 +1,7 @@
 "use client";
 import { ProgressContext } from "@/common/contexts";
-import makeApiRequest from "@/common/makeApiRequest";
+import { useLocalization } from "@/common/hooks";
+import makeApiRequest from "@/common/make-api-request";
 import { Category } from "@/common/models";
 import {
   formatTimestamp,
@@ -11,7 +12,12 @@ import {
 import Alert from "@/components/Alert";
 import ConfirmModal from "@/components/ConfirmModal";
 import Loading from "@/components/Loading";
-import { RiDeleteBinLine, RiPencilFill } from "@remixicon/react";
+import {
+  RiArrowDownLine,
+  RiArrowUpLine,
+  RiDeleteBinLine,
+  RiPencilFill
+} from "@remixicon/react";
 import Link from "next/link";
 import { useContext, useState } from "react";
 import { toast } from "react-toastify";
@@ -50,6 +56,9 @@ function CategoryList({
   const [category, setCategory] = useState<Category>();
   const [showConfirm, setShowConfirm] = useState(false);
   const progressContext = useContext(ProgressContext);
+  const { locale } = useLocalization();
+
+  const [nameAscending, setNameAscending] = useState(true);
 
   const { data, error, isLoading, mutate } = useSWR(
     `/admin/categories/${categoryId}/list`,
@@ -79,7 +88,20 @@ function CategoryList({
             <thead className="text-nowrap align-middle">
               <tr>
                 <th scope="col" style={{ minWidth: 400 }}>
-                  NAME
+                  <div className="hstack gap-2">
+                    NAME
+                    <div
+                      role="button"
+                      className="text-primary"
+                      onClick={() => setNameAscending((old) => !old)}
+                    >
+                      {nameAscending ? (
+                        <RiArrowUpLine size={20} />
+                      ) : (
+                        <RiArrowDownLine size={20} />
+                      )}
+                    </div>
+                  </div>
                 </th>
                 <th scope="col" style={{ minWidth: 250, width: 250 }}>
                   CREATED AT
@@ -90,42 +112,56 @@ function CategoryList({
               </tr>
             </thead>
             <tbody>
-              {data?.map((c, i) => {
-                return (
-                  <tr key={c.id}>
-                    <th scope="row" className="py-3">
-                      <Link href={`/admin/categories/${c.id}/list`} className="link-dark">
-                        {getCategoryName(lang, c)}
-                      </Link>
-                    </th>
-                    <td>
-                      <span className="text-nowrap">
-                        {formatTimestamp(c.audit?.createdAt, true)}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="hstack align-items-center gap-2">
+              {data
+                ?.sort((a, b) => {
+                  const nameA = getCategoryName(locale, a);
+                  const nameB = getCategoryName(locale, b);
+
+                  if (nameAscending) {
+                    return nameA.localeCompare(nameB);
+                  }
+
+                  return nameB.localeCompare(nameA);
+                })
+                .map((c, i) => {
+                  return (
+                    <tr key={c.id}>
+                      <th scope="row" className="py-3">
                         <Link
-                          href={`/admin/categories/${c.id}`}
-                          className="btn btn-default"
+                          href={`/admin/categories/${c.id}/list`}
+                          className="link-dark"
                         >
-                          <RiPencilFill size={20} />
+                          {getCategoryName(lang, c)}
                         </Link>
-                        <button
-                          disabled={false}
-                          className="btn btn-danger"
-                          onClick={() => {
-                            setCategory(c);
-                            setShowConfirm(true);
-                          }}
-                        >
-                          <RiDeleteBinLine size={20} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      </th>
+                      <td>
+                        <span className="text-nowrap">
+                          {formatTimestamp(c.audit?.createdAt, true)}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="hstack align-items-center gap-2">
+                          <Link
+                            href={`/admin/categories/${c.id}`}
+                            className="btn btn-default"
+                          >
+                            <RiPencilFill size={20} />
+                          </Link>
+                          <button
+                            disabled={false}
+                            className="btn btn-danger"
+                            onClick={() => {
+                              setCategory(c);
+                              setShowConfirm(true);
+                            }}
+                          >
+                            <RiDeleteBinLine size={20} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>

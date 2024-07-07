@@ -1,5 +1,6 @@
 import { Shop } from "@/common/models";
 import MapView from "../MapView";
+import ShopLicenses from "./shop-licenses";
 
 function AboutUs({ shop }: { shop: Shop }) {
   if (!shop) {
@@ -8,7 +9,7 @@ function AboutUs({ shop }: { shop: Shop }) {
   return (
     <div className="row g-3">
       <div className="col-lg-8">
-        <div className="card">
+        <div className="card mb-3">
           <div className="card-header border-bottom bg-white py-3">
             <h5 className="mb-0">About us</h5>
           </div>
@@ -16,6 +17,8 @@ function AboutUs({ shop }: { shop: Shop }) {
             <div dangerouslySetInnerHTML={{ __html: shop?.about ?? "" }}></div>
           </div>
         </div>
+
+        <ShopLicenses shopId={shop.id} />
       </div>
       <div className="col-lg-4">
         <div className="card">

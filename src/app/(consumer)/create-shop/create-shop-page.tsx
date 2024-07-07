@@ -109,7 +109,6 @@ function CreateShopPage() {
       toast.error(msg);
       event.target.value = "";
     } finally {
-      
     }
   }
 
@@ -400,8 +399,14 @@ function CreateShopPage() {
                   name="license"
                   className="d-none"
                   type="file"
-                  accept="image/x-png,image/jpeg"
+                  accept="image/x-png,image/jpeg,image/png"
                 />
+              </div>
+
+              <div className="card-footer py-2h">
+                <span className="text-muted">
+                  Shop approval process will take longer if no license attached.
+                </span>
               </div>
             </div>
           </div>
@@ -423,7 +428,7 @@ function CreateShopPage() {
                       type="file"
                       id="logoInput"
                       name="logo"
-                      accept="image/x-png,image/jpeg"
+                      accept="image/x-png,image/jpeg,image/png"
                       onChange={handleImageChange}
                     ></input>
                   </div>
@@ -468,7 +473,7 @@ function CreateShopPage() {
                         name="cover"
                         className="d-none"
                         type="file"
-                        accept="image/x-png,image/jpeg"
+                        accept="image/x-png,image/jpeg,image/png"
                       />
                     </div>
                   </div>

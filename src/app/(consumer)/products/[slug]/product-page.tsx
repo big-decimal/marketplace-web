@@ -9,6 +9,7 @@ import {
 } from "@/common/models";
 import {
   formatNumber,
+  formatTimestamp,
   getCategoryName,
   transformDiscount
 } from "@/common/utils";
@@ -252,6 +253,7 @@ function ProductPage({ product }: { product: Product | null }) {
                           alt="Product image."
                           fill
                           sizes="80vw"
+                          priority
                           style={{
                             objectFit: "contain"
                           }}
@@ -260,65 +262,67 @@ function ProductPage({ product }: { product: Product | null }) {
                     );
                   })}
                 </div>
-                <SwiperView
-                  onInit={setSwiper}
-                  className="overflow-hidden border rounded flex-grow-1 position-relative"
-                  initialSlide={imageIndex}
-                  autoplay={false}
-                  spaceBetween={0}
-                  slidesPerView={1}
-                  pagination={{
-                    clickable: true
-                  }}
-                  zoom={{}}
-                  navigation={{}}
-                  modules={[Navigation, Pagination, Zoom]}
-                  onActiveIndexChange={(swiper) => {
-                    setImageIndex(swiper.activeIndex);
-                  }}
-                >
-                  {product.images?.map((img, i) => {
-                    return (
-                      <SwiperSlide
-                        key={i}
-                        className="ratio ratio-1x1"
-                        zoom={true}
-                      >
-                        <img
-                          src={img?.name ?? "/images/placeholder.jpeg"}
-                          alt="Product image."
-                          className="w-100 h-100"
-                          style={{
-                            objectFit: "contain"
-                          }}
-                        />
-                      </SwiperSlide>
-                    );
-                  })}
-                  <div
-                    className="position-absolute bottom-0 end-0 m-2 hstack"
-                    style={{
-                      zIndex: 99
+                <div className="flex-grow-1 w-100">
+                  <SwiperView
+                    onInit={setSwiper}
+                    className="overflow-hidden border rounded position-relative"
+                    initialSlide={imageIndex}
+                    autoplay={false}
+                    spaceBetween={0}
+                    slidesPerView={1}
+                    pagination={{
+                      clickable: true
+                    }}
+                    zoom={{}}
+                    navigation={{}}
+                    modules={[Navigation, Pagination, Zoom]}
+                    onActiveIndexChange={(swiper) => {
+                      setImageIndex(swiper.activeIndex);
                     }}
                   >
+                    {product.images?.map((img, i) => {
+                      return (
+                        <SwiperSlide
+                          key={i}
+                          className="ratio ratio-1x1"
+                          zoom={true}
+                        >
+                          <img
+                            src={img?.name ?? "/images/placeholder.jpeg"}
+                            alt="Product image."
+                            className="w-100 h-100"
+                            style={{
+                              objectFit: "contain"
+                            }}
+                          />
+                        </SwiperSlide>
+                      );
+                    })}
                     <div
-                      role="button"
-                      className="bg-dark px-2h py-2 bg-opacity-75 rounded-start"
-                      onClick={() => {
-                        swiper?.zoom.out();
+                      className="position-absolute bottom-0 end-0 m-2 hstack"
+                      style={{
+                        zIndex: 99
                       }}
                     >
-                      <RiSubtractLine size={20} className="text-light" />
+                      <div
+                        role="button"
+                        className="bg-dark px-2h py-2 bg-opacity-75 rounded-start"
+                        onClick={() => {
+                          swiper?.zoom.out();
+                        }}
+                      >
+                        <RiSubtractLine size={20} className="text-light" />
+                      </div>
+                      <div
+                        role="button"
+                        className="bg-dark px-2h py-2 bg-opacity-75 rounded-end"
+                        onClick={() => swiper?.zoom.in()}
+                      >
+                        <RiAddLine size={20} className="text-light" />
+                      </div>
                     </div>
-                    <div
-                      role="button"
-                      className="bg-dark px-2h py-2 bg-opacity-75 rounded-end"
-                      onClick={() => swiper?.zoom.in()}
-                    >
-                      <RiAddLine size={20} className="text-light" />
-                    </div>
-                  </div>
-                </SwiperView>
+                  </SwiperView>
+                </div>
               </div>
             </div>
             <div className="col-lg-7 col-xxl-6">
@@ -360,6 +364,10 @@ function ProductPage({ product }: { product: Product | null }) {
                     ) : (
                       <span className="text-danger">Not Available</span>
                     )}
+                  </dd>
+                  <dt className="col-sm-3 fw-semibold">Last updated</dt>
+                  <dd className="col-sm-9">
+                    {formatTimestamp(product.audit?.modifiedAt)}
                   </dd>
                 </dl>
 

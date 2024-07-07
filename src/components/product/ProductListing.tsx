@@ -40,7 +40,7 @@ function ProductListing(props: ProductListingProps) {
 
   return (
     <>
-      <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+      <div className="row row-cols-2 row-cols-sm-2 row-cols-lg-4 g-3">
         {data.contents.map((p, i) => {
           return (
             <div key={p.id} className="col">

@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { parseErrorResponse, validateResponse } from "@/common/utils";
 import { RiDeleteBinLine } from "@remixicon/react";
 import { useRouter } from "next/navigation";

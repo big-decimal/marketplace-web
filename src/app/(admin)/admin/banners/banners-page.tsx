@@ -23,7 +23,7 @@ import Alert from "@/components/Alert";
 import Loading from "@/components/Loading";
 import BannerItem from "./BannerItem";
 import Link from "next/link";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 
 const getBanners = async (url: string) => {
   const resp = await makeApiRequest({ url, authenticated: true });

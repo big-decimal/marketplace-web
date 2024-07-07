@@ -59,8 +59,8 @@ function AddToFavoriteButton({
         }}
         onClick={() => {
           if (authContext.status === "success") {
-            if (!authContext.user?.emailVerified) {
-              router.push("/verify-email");
+            if (!authContext.user?.phoneNumberVerified) {
+              router.push("/verify-phone");
               return;
             }
             setLoading(true);

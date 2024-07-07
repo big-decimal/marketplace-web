@@ -4,20 +4,7 @@ import { InputProps } from "./Input";
 interface TextareaInputProps extends InputProps<HTMLTextAreaElement> {}
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaInputProps>(
-  (props, ref) => {
-    const {
-      label,
-      id,
-      name,
-      placeholder,
-      disabled,
-      value,
-      defaultValue,
-      onChange,
-      onBlur,
-      error,
-      height = 120
-    } = props;
+  ({ id, label, error, className, style, ...props }, ref) => {
     return (
       <>
         {label && (
@@ -28,17 +15,11 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaInputProps>(
         <textarea
           id={id}
           ref={ref}
-          name={name}
           className={`form-control p-3 ${error ? "is-invalid" : ""}`}
-          placeholder={placeholder}
-          disabled={disabled}
-          value={value}
-          defaultValue={defaultValue}
-          onChange={onChange}
-          onBlur={onBlur}
           style={{
-            height: height
+            height: 120
           }}
+          {...props}
         />
         {error && <div className="invalid-feedback">{error}</div>}
       </>

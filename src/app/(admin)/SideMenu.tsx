@@ -5,6 +5,7 @@ import {
   RiBox3Line,
   RiBuildingLine,
   RiComputerLine,
+  RiExternalLinkLine,
   RiGroupLine,
   RiImageLine,
   RiMap2Line,
@@ -20,10 +21,11 @@ interface MenuItemProps {
   label: string;
   icon: ReactNode;
   expanded: boolean;
+  external?: boolean;
   children?: ReactNode;
 }
 
-function MenuItem({ to, label, icon, expanded, children }: MenuItemProps) {
+function MenuItem({ to, label, icon, expanded, external, children }: MenuItemProps) {
   const pathname = usePathname();
 
   const isActive = to == pathname;
@@ -36,6 +38,7 @@ function MenuItem({ to, label, icon, expanded, children }: MenuItemProps) {
             isActive ? "active" : ""
           }`}
           replace
+          target={external ? "_blank" : undefined}
         >
           <div className="hstack">
             {icon}
@@ -50,6 +53,7 @@ function MenuItem({ to, label, icon, expanded, children }: MenuItemProps) {
             isActive ? "active" : ""
           }`}
           replace
+          target={external ? "_blank" : undefined}
         >
           <div className="d-flex justify-content-center">{icon}</div>
         </Link>
@@ -94,6 +98,14 @@ function SideMenu({ expanded = true }) {
             icon={<RiComputerLine size={!expanded ? 24 : 20} />}
             label="Dashboard"
             expanded={expanded}
+          />
+
+          <MenuItem
+            to="/"
+            icon={<RiExternalLinkLine size={!expanded ? 24 : 20} />}
+            label="Visit website"
+            expanded={expanded}
+            external
           />
           <div className="custom-border-bottom"></div>
           {expanded && (

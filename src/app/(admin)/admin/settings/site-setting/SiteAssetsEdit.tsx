@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { SiteAssets } from "@/common/models";
 import { parseErrorResponse, validateResponse } from "@/common/utils";
 import ProgressButton from "@/components/ProgressButton";

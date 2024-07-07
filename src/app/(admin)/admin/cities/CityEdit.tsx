@@ -10,7 +10,7 @@ import {
 import Alert from "@/components/Alert";
 import { Input } from "@/components/forms";
 import ProgressButton from "@/components/ProgressButton";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 
 const saveCity = async (values: City) => {
   const url = "/admin/cities";

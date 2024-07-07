@@ -5,10 +5,7 @@ import {
   Status
 } from "@/common/contexts";
 import { UnauthorizeError } from "@/common/customs";
-import { firebaseAuth } from "@/common/firebase.config";
 import { getLoginUser } from "@/services/UserService";
-import dayjs from "dayjs";
-import { onAuthStateChanged } from "firebase/auth";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
 export const AuthenticationContextProvider = ({
@@ -16,37 +13,23 @@ export const AuthenticationContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const updateStatus = useCallback((status?: Status) => {
-    setAuthState((old) => {
-      if (status === "unauthorized") {
-        return { ...old, status: status, user: undefined };
-      }
-      return { ...old, status: status };
-    });
-  }, []);
-
-  const reloadLoginUser = useCallback(async () => {
+  const loadUser = async () => {
     try {
-      // await firebaseAuth.authStateReady();
-      const user = firebaseAuth.currentUser;
-      if (!user) {
-        throw new UnauthorizeError();
-      }
-
       setAuthState((old) => {
         return { ...old, status: "loading" };
       });
-      const data = await getLoginUser();
+
+      const user = await getLoginUser();
+
       setAuthState((old) => {
         return {
           ...old,
           status: "success",
-          user: { ...data, emailVerified: user.emailVerified }
+          user: { ...user }
         };
       });
     } catch (error) {
-      // console.log(parseErrorResponse(error, true));
-      if (error instanceof UnauthorizeError) {
+      if (error && error instanceof UnauthorizeError) {
         setAuthState((old) => {
           return { ...old, status: "unauthorized", user: undefined };
         });
@@ -56,34 +39,48 @@ export const AuthenticationContextProvider = ({
         });
       }
     }
+  };
+
+  const updateStatus = useCallback((status?: Status) => {
+    setAuthState((old) => {
+      if (status === "unauthorized") {
+        return { ...old, status: status, user: undefined };
+      }
+      return { ...old, status: status };
+    });
   }, []);
 
   const [authState, setAuthState] = useState<AuthenticationState>({
     status: "loading",
     update: updateStatus,
-    reload: reloadLoginUser
+    reload: loadUser
   });
 
   useEffect(() => {
-    const auth = firebaseAuth;
-
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      const diff = 600000; // 10 min
-      if (!user) {
+    const onStorage = (evt: StorageEvent) => {
+      const token = localStorage.getItem("access_token");
+      console.log(evt);
+      if (evt.key === 'access_token' && !evt.oldValue && evt.newValue) {
+        loadUser();
+      } else if (!token) {
         setAuthState((old) => {
           return { ...old, status: "unauthorized", user: undefined };
         });
-      } else if (user.emailVerified || !!user.displayName) {
-        reloadLoginUser();
-      } else if (Math.abs(dayjs(user.metadata.creationTime).diff()) > diff) {
-        reloadLoginUser();
       }
-    });
-
-    return () => {
-      unsubscribe();
     };
-  }, [reloadLoginUser]);
+    addEventListener('storage', onStorage);
+
+    if (localStorage.getItem("access_token")) {
+      loadUser();
+    } else {
+      setAuthState((old) => {
+        return { ...old, status: "unauthorized", user: undefined };
+      });
+    }
+    return () => {
+      removeEventListener('storage', onStorage);
+    }
+  }, []);
 
   return (
     <AuthenticationContext.Provider value={authState}>

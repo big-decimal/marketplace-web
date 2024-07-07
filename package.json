@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.18",
+    "@hookform/resolvers": "^3.8.0",
     "@popperjs/core": "^2.11.8",
     "@remixicon/react": "^4.1.1",
     "@tinymce/tinymce-react": "^5.0.1",
@@ -31,7 +32,8 @@
     "sharp": "^0.33.2",
     "swiper": "^11.0.5",
     "swr": "^2.2.4",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/bootstrap": "^5.2.5",
@@ -40,8 +42,8 @@
     "@types/react-dom": "^18",
     "@types/uuid": "^9.0.8",
     "eslint": "^8",
-    "eslint-config-prettier": "^9.1.0",
     "eslint-config-next": "^14.2.3",
+    "eslint-config-prettier": "^9.1.0",
     "prettier": "^3.2.4",
     "typescript": "^5"
   }
