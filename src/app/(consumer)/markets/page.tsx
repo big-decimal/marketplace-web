@@ -39,27 +39,33 @@ export default async function Markets() {
         <div className="container py-3">
           <div className="row">
             <div className="col-12">
-              <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxxl-4 g-4">
-                {data.contents.map((m, i) => {
-                  return (
-                    <a
-                      key={i}
-                      className="col text-decoration-none"
-                      href={m.url ? m.url : undefined}
-                      target="_blank"
-                    >
-                      <div className="card h-100">
-                        <div className="card-body py-4">
-                          <h5 className="text-center">{m.name}</h5>
-                          <div className="text-muted text-center">
-                            {pluralize(m.shopCount ?? 0, "shop")}
+              {data.contents.length > 0 && (
+                <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxxl-4 g-4">
+                  {data.contents.map((m, i) => {
+                    return (
+                      <Link
+                        key={i}
+                        className="col text-decoration-none"
+                        href={`/markets/${m.slug}`}
+                      >
+                        <div className="card h-100">
+                          <div className="card-body py-4">
+                            <h5 className="text-center">{m.name}</h5>
+                            <div className="text-muted text-center">
+                              {pluralize(m.shopCount ?? 0, "shop")}
+                            </div>
+
+                            {/* {m.url && <a href={m.url} className="hstack justify-content-center mt-3" target="_blank">
+                              <span>Website</span>
+                              <RiExternalLinkLine size={16} className="ms-1" />
+                            </a>} */}
                           </div>
                         </div>
-                      </div>
-                    </a>
-                  );
-                })}
-              </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
               {data.contents.length === 0 && (
                 <Alert message="No markets found" />
               )}

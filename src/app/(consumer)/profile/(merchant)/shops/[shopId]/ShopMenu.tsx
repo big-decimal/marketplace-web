@@ -1,25 +1,38 @@
 "use client";
 
+import { AuthenticationContext } from "@/common/contexts";
 import { Shop } from "@/common/models";
 import Accordion from "@/components/Accordion";
 import { PendingOrderCountView } from "@/components/shop";
+import { getShopMember } from "@/services/ShopService";
 import {
   RiBox3Line,
   RiComputerLine,
   RiDiscountPercentLine,
   RiErrorWarningFill,
   RiFileList3Line,
+  RiGroupLine,
   RiMoneyDollarCircleLine,
   RiSettings3Line
 } from "@remixicon/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
+import useSWR from "swr";
 
 const iconSize = 20;
 
 export default function ShopMenu({ shop }: { shop: Shop }) {
   const pathname = usePathname();
+  const { user } = useContext(AuthenticationContext);
+
+  const { data } = useSWR(
+    [`/vendor/shops/${shop.id}/members`, user?.id ?? 0],
+    ([url, userId]) => getShopMember(shop.id, userId),
+    {
+      revalidateOnFocus: false
+    }
+  );
 
   const currentTime = new Date().getTime();
 
@@ -57,7 +70,7 @@ export default function ShopMenu({ shop }: { shop: Shop }) {
         header={(open) => {
           return <span className="fw-bold">Menu</span>;
         }}
-        headerClassName="px-3 py-2h border-bottom d-flex d-lg-none"
+        headerClassName="px-3 py-2h border-bottom"
         bodyClassName=""
         iconType="plus-minus"
       >
@@ -105,6 +118,14 @@ export default function ShopMenu({ shop }: { shop: Shop }) {
                 </>
               )
             })}
+
+            {data?.role === "OWNER" &&
+              menuLink({
+                path: `/profile/shops/${shop.id}/members`,
+                title: "Members",
+                icon: <RiGroupLine className="me-2" size={iconSize} />
+              })}
+
             {menuLink({
               path: `/profile/shops/${shop.id}/setting`,
               title: "Setting",

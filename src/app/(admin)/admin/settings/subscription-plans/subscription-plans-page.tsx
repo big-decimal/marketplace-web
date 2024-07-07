@@ -15,7 +15,7 @@ import Loading from "@/components/Loading";
 import Link from "next/link";
 import { withAuthorization } from "@/common/withAuthorization";
 import { RiDeleteBinLine, RiPencilFill } from "@remixicon/react";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { ProgressContext } from "@/common/contexts";
 
 const getSubscriptionPlans = async () => {

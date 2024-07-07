@@ -373,17 +373,17 @@ function OrderPage({ shopId, orderId }: Props) {
                   />
                 </div> */}
                 <div className="vstack">
-                  <h6 className="mb-0">{data.customer?.name ?? "Deleted"}</h6>
+                  <h6 className="mb-1">{data.customer?.name ?? "Deleted"}</h6>
                   {data.customer?.phone && (
-                    <div className="text-muted small">
+                    <a href={`tel:${data.customer.phone}`} className="small">
                       {data.customer.phone}
-                    </div>
+                    </a>
                   )}
-                  {data.customer?.email && (
+                  {/* {data.customer?.email && (
                     <div className="text-muted small">
                       {data.customer?.email}
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>

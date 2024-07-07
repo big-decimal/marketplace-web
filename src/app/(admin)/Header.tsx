@@ -3,16 +3,14 @@ import { AuthenticationContext } from "@/common/contexts";
 import { useLocalization } from "@/common/hooks";
 import { parseErrorResponse } from "@/common/utils";
 import Dropdown from "@/components/Dropdown";
-import { signOut } from "@/services/AuthService";
-import { RiAccountCircleFill, RiMenuLine } from "@remixicon/react";
+import { signOut } from "@/lib/actions";
+import { RiAccountCircleFill, RiGlobalLine, RiMenuLine } from "@remixicon/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useContext } from "react";
 import { toast } from "react-toastify";
 
 function Header({ onBarClick }: { onBarClick: () => void }) {
-  const { status, user, update } = useContext(AuthenticationContext);
-  const router = useRouter();
+  const { user, update } = useContext(AuthenticationContext);
   const { locale, change } = useLocalization();
 
   return (
@@ -31,8 +29,8 @@ function Header({ onBarClick }: { onBarClick: () => void }) {
 
         <ul className="navbar-nav ms-auto">
           <Dropdown
-            toggle={<span>{locale.toUpperCase()}</span>}
-            className="nav-item"
+            toggle={<RiGlobalLine size={20} />}
+            className="nav-item hstack"
             toggleClassName="dropdown-toggle nav-link hstack"
             menuClassName="dropdown-menu-end"
           >
@@ -76,14 +74,14 @@ function Header({ onBarClick }: { onBarClick: () => void }) {
               <li
                 className="dropdown-item"
                 role="button"
-                onClick={() => {
-                  signOut()
-                    .then(() => {
-                      router.push("/login");
-                    })
-                    .catch((error) => {
-                      toast.error(parseErrorResponse(error));
-                    });
+                onClick={async () => {
+                  try {
+                    await signOut();
+                    localStorage.removeItem("access_token");
+                    update('unauthorized');
+                  } catch (error) {
+                    toast.error(parseErrorResponse(error));
+                  }
                 }}
               >
                 Sign out

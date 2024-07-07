@@ -1,4 +1,4 @@
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import {
   PageData,
   Product,

@@ -1,5 +1,5 @@
 "use client";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { SiteSetting } from "@/common/models";
 import { parseErrorResponse, validateResponse } from "@/common/utils";
 import { withAuthorization } from "@/common/withAuthorization";

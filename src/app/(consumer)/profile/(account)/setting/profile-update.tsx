@@ -1,5 +1,4 @@
 import { AuthenticationContext, ProgressContext } from "@/common/contexts";
-import { useLoginUser } from "@/common/hooks";
 import { UserEdit } from "@/common/models";
 import { parseErrorResponse, setEmptyOrString } from "@/common/utils";
 import ProgressButton from "@/components/ProgressButton";
@@ -9,13 +8,12 @@ import Image from "next/image";
 import { useContext, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import ChangePhoneNumberButton from "./change-phone-number-button";
 
 export default function ProfileUpdate() {
-  const { user, isLoading, error, mutate } = useLoginUser();
-
   const progressContext = useContext(ProgressContext);
 
-  const authContext = useContext(AuthenticationContext);
+  const { user, reload } = useContext(AuthenticationContext);
 
   const imageFileRef = useRef<HTMLInputElement>(null);
 
@@ -28,7 +26,7 @@ export default function ProfileUpdate() {
   const save = async (values: UserEdit) => {
     try {
       await updateUser(values);
-      authContext.reload();
+      reload();
       toast.success("Profile updated");
     } catch (error) {
       const msg = parseErrorResponse(error);
@@ -63,25 +61,20 @@ export default function ProfileUpdate() {
                 />
               </div>
               <div className="col-lg-6">
-                {/* <div className="hstack gap-2 mb-2">
-                            <label
-                              htmlFor="phoneInput"
-                              className="form-label mb-0"
-                            >
-                              Phone
-                            </label>
-                            <div className="d-flex align-items-center">
-                              <div className="vr"></div>
-                            </div>
-                            <div role="button" className="link-primary small">
-                              Change
-                            </div>
-                          </div> */}
+                <div className="hstack gap-2 mb-2">
+                  <label htmlFor="phoneInput" className="form-label mb-0">
+                    Phone
+                  </label>
+                  <div className="d-flex align-items-center">
+                    <div className="vr"></div>
+                  </div>
+                  <ChangePhoneNumberButton onSuccess={reload} />
+                </div>
                 <Input
                   id="phoneInput"
-                  label="Phone"
                   type="tel"
-                  placeholder="Enter phone number"
+                  disabled
+                  placeholder="09xxxxxxx"
                   {...register("phone", {
                     setValueAs: setEmptyOrString
                   })}
@@ -94,7 +87,7 @@ export default function ProfileUpdate() {
                     id="emailInput"
                     type="email"
                     placeholder="None"
-                    disabled
+                    readOnly
                     defaultValue={user?.email ?? ""}
                     // error={
                     //   errors.email && "Please enter valid email address"
@@ -146,7 +139,7 @@ export default function ProfileUpdate() {
                 className="form-control d-none"
                 type="file"
                 id="imageFile"
-                accept="image/x-png,image/jpeg"
+                accept="image/x-png,image/jpeg,image/png"
                 onChange={async (evt) => {
                   try {
                     const files = evt.target.files;
@@ -162,7 +155,7 @@ export default function ProfileUpdate() {
 
                       await uploadUserImage(file);
 
-                      mutate();
+                      reload();
                     }
                   } catch (error) {
                     const msg = parseErrorResponse(error);

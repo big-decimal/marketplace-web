@@ -1,5 +1,5 @@
 "use client";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { City } from "@/common/models";
 import { parseErrorResponse, validateResponse } from "@/common/utils";
 import { hasAccess, withAuthorization } from "@/common/withAuthorization";
@@ -45,7 +45,7 @@ function CityPage() {
 
   const [city, setCity] = useState<City>();
 
-  const [nameAscending, setNameAscending] = useState<boolean>(true);
+  const [nameAscending, setNameAscending] = useState(true);
 
   const progressContext = useContext(ProgressContext);
 
@@ -102,14 +102,12 @@ function CityPage() {
             </thead>
             <tbody>
               {data
-                ?.sort((f, s) => {
-                  if (nameAscending === undefined) {
-                    return s.id - f.id;
+                ?.sort((a, b) => {
+                  if (nameAscending) {
+                    return a.name.localeCompare(b.name);
                   }
 
-                  return nameAscending
-                    ? f.name.localeCompare(s.name)
-                    : s.name.localeCompare(f.name);
+                  return b.name.localeCompare(a.name);
                 })
                 .map((c, i) => {
                   return (

@@ -1,5 +1,5 @@
 "use client";
-import { formatNumber } from "@/common/utils";
+import { formatNumber, parseErrorResponse } from "@/common/utils";
 import { getShopStatistic } from "@/services/ShopService";
 import {
   RiBox3Fill,
@@ -8,6 +8,7 @@ import {
 } from "@remixicon/react";
 import useSWR from "swr";
 import SaleLineChart from "./SaleLineChart";
+import Alert from "@/components/Alert";
 
 function ShopDashboard({ shopId }: { shopId: number }) {
   const iconSize = 56;
@@ -18,6 +19,10 @@ function ShopDashboard({ shopId }: { shopId: number }) {
       revalidateOnFocus: false
     }
   );
+
+  if (error) {
+    return <Alert message={parseErrorResponse(error)} variant="danger" />;
+  }
 
   return (
     <div>

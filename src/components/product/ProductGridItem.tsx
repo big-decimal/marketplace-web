@@ -65,7 +65,7 @@ function ProductGridItem({ value, hideAction = false }: ProductGridItemProps) {
           </Link>
 
           <h6
-            className="fw-semibold mt-2 mb-0"
+            className="fw-semibold mt-2 mb-0  text-truncate"
             style={{
               fontSize: 18
             }}
@@ -74,7 +74,7 @@ function ProductGridItem({ value, hideAction = false }: ProductGridItemProps) {
           </h6>
 
           {!hideAction && (
-            <div className="mt-3 hstack align-items-stretch gap-2">
+            <div className="mt-3 hstack align-items-stretch gap-2 d-none d-sm-flex">
               {!value.withVariant ? (
                 <AddToCartButton
                   productId={value.id ?? 0}

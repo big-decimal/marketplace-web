@@ -1,7 +1,7 @@
 "use client";
 import { useCities, useMarkets } from "@/common/hooks";
 /* eslint-disable @next/next/no-img-element */
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { City, Market, PageData, Shop, ShopStatus } from "@/common/models";
 import {
   buildQueryParams,
@@ -18,6 +18,7 @@ import { AutocompleteSelect, Input, Select } from "@/components/forms";
 import { RiPencilFill } from "@remixicon/react";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "react-toastify";
 import useSWR from "swr";
 
 export interface ShopQuery {
@@ -26,6 +27,7 @@ export interface ShopQuery {
   "market-id"?: number;
   status?: ShopStatus;
   expired?: boolean;
+  featured?: boolean;
   page?: number;
 }
 
@@ -39,10 +41,63 @@ const getShops = async (query: ShopQuery) => {
   return resp.json() as Promise<PageData<Shop>>;
 };
 
+const updateFeature = async (path: string, shopId: number) => {
+  const url = `/admin/shops/${shopId}/${path}`;
+  const resp = await makeApiRequest({
+    url,
+    options: { method: "PUT" },
+    authenticated: true
+  });
+
+  await validateResponse(resp);
+};
+
+const FeaturedCheck = ({
+  shop,
+  mutate
+}: {
+  shop: Shop;
+  mutate: () => void;
+}) => {
+  const [loading, setLoading] = useState(false);
+
+  if (loading) {
+    return (
+      <span
+        className="spinner-border spinner-border-sm text-light-gray"
+        role="status"
+      ></span>
+    );
+  }
+
+  return (
+    <div className="form-check form-switch">
+      <input
+        className="form-check-input"
+        type="checkbox"
+        role="switch"
+        checked={shop.featured ?? false}
+        onChange={(evt) => {
+          const path = shop.featured ? "remove-featured" : "make-featured";
+          setLoading(true);
+          updateFeature(path, shop.id)
+            .then(() => mutate())
+            .catch((e) => {
+              toast.error(parseErrorResponse(e));
+            })
+            .finally(() => {
+              setLoading(false);
+            });
+        }}
+      ></input>
+    </div>
+  );
+};
+
 function ShopsPage() {
   const [query, setQuery] = useState<ShopQuery>({});
 
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR(
     ["/admin/shops", query],
     ([url, q]) => getShops(q),
     {
@@ -113,6 +168,9 @@ function ShopsPage() {
                 <th scope="col" style={{ minWidth: 150 }}>
                   CREATED AT
                 </th>
+                <th scope="col" style={{ minWidth: 100 }}>
+                  Featured
+                </th>
                 <th scope="col" style={{ minWidth: 150 }}>
                   ACTION
                 </th>
@@ -140,6 +198,9 @@ function ShopsPage() {
                         : "--"}
                     </td>
                     <td>{formatTimestamp(s.audit?.createdAt)}</td>
+                    <td>
+                      <FeaturedCheck shop={s} mutate={mutate} />
+                    </td>
                     <td>
                       <Link
                         href={`/admin/shops/${s.id}`}
@@ -249,6 +310,27 @@ function ShopsPage() {
             <option value="APPROVED">Approved</option>
             <option value="DISABLED">Disabled</option>
           </Select>
+        </div>
+        <div className="col-12 col-md-auto hstack">
+          <div className="form-check">
+            <input
+              id="featuredCheck"
+              className="form-check-input"
+              type="checkbox"
+              checked={query.featured ?? false}
+              onChange={(evt) => {
+                setQuery((old) => {
+                  return { ...old, featured: evt.target.checked };
+                });
+              }}
+            ></input>
+            <label
+              htmlFor="featuredCheck"
+              className="form-check-label fw-medium"
+            >
+              Featured
+            </label>
+          </div>
         </div>
       </div>
 

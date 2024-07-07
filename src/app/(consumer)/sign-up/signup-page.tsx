@@ -5,16 +5,15 @@ import Alert from "@/components/Alert";
 import Loading from "@/components/Loading";
 import ProgressButton from "@/components/ProgressButton";
 import { Input, PasswordInput } from "@/components/forms";
-import { facebookLogin, googleLogin, signUp } from "@/services/AuthService";
-import Image from "next/image";
+import { signUp } from "@/lib/actions";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 interface SignUpInputs {
-  fullName?: string;
-  email?: string;
+  name?: string;
+  phone?: string;
   password?: string;
   confirmPassword?: string;
 }
@@ -23,7 +22,6 @@ function SignUpPage() {
   const router = useRouter();
   const { status, user, reload } = useContext(AuthenticationContext);
   const [error, setError] = useState<string>();
-  const [oauthLogin, setOauthLogin] = useState<"facebook"|"google">();
 
   const {
     register,
@@ -34,18 +32,26 @@ function SignUpPage() {
 
   useEffect(() => {
     if (status === "success") {
-      router.replace(user?.emailVerified ? "/" : "/verify-email");
+      router.replace(user?.phoneNumberVerified ? "/" : "/verify-phone");
     }
   }, [router, status, user]);
 
   const processSignUp = async (values: SignUpInputs) => {
     try {
       setError(undefined);
-      await signUp({
-        name: values.fullName!,
-        email: values.email!,
+      const result = await signUp({
+        name: values.name!,
+        phone: values.phone!,
         password: values.password!
       });
+      localStorage.setItem('access_token', result.accessToken);
+      // reload();
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: "access_token",
+          newValue: result.accessToken
+        })
+      );
     } catch (error) {
       setError(parseErrorResponse(error));
     }
@@ -66,7 +72,7 @@ function SignUpPage() {
   return (
     <div className="container py-3">
       <div className="row my-4 mb-5">
-        <div className=" col-lg-6 offset-lg-3">
+        <div className="col-lg-6 offset-lg-3">
           <div className="card">
             <div className="card-body p-lg-4">
               <h4 className="card-title fw-bold mt-2 mb-4">Sign Up</h4>
@@ -86,25 +92,25 @@ function SignUpPage() {
                     id="nameInput"
                     type="text"
                     placeholder="Your full name"
-                    {...register("fullName", {
+                    {...register("name", {
                       required: true,
                       setValueAs: setEmptyOrString
                     })}
-                    error={errors.fullName && "Please enter full name"}
+                    error={errors.name && "Please enter full name"}
                   />
                 </div>
                 <div className="col-lg-6">
                   <Input
-                    label="Email"
-                    id="emailInput"
-                    type="email"
+                    label="Phone number"
+                    id="phoneInput"
+                    type="tel"
                     autoComplete="username"
-                    placeholder="Enter email address"
-                    {...register("email", {
+                    placeholder="09xxxxxxx"
+                    {...register("phone", {
                       required: true,
-                      pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+                      pattern: /^(09)\d{7,12}$/
                     })}
-                    error={errors.email && "Please enter valid email"}
+                    error={errors.phone && "Please enter valid phone number"}
                   />
                 </div>
                 <div className="col-12">
@@ -140,86 +146,11 @@ function SignUpPage() {
                   <ProgressButton
                     type="submit"
                     className="w-100 py-2h"
-                    disabled={isSubmitting || !!oauthLogin}
+                    disabled={isSubmitting}
                     loading={isSubmitting}
                   >
                     Sign up
                   </ProgressButton>
-                </div>
-                <div className="col-md-12 mb-2">
-                  <div className="row g-2">
-                    <div className="col">
-                      <hr className="text-muted" />
-                    </div>
-                    <div className="col-auto align-self-center text-muted">
-                      or continue with
-                    </div>
-                    <div className="col">
-                      <hr className="text-muted" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col-md-12">
-                  <div className="hstack gap-2 align-items-center">
-                    <ProgressButton
-                      className="border w-50"
-                      variant="light"
-                      theme="outline"
-                      disabled={isSubmitting || !!oauthLogin}
-                      loading={oauthLogin === "facebook"}
-                      onClick={async () => {
-                        try {
-                          setError(undefined);
-                          setOauthLogin("facebook");
-                          await facebookLogin();
-                        } catch (error) {
-                          setError(parseErrorResponse(error));
-                        } finally {
-                          setOauthLogin(undefined);
-                        }
-                      }}
-                    >
-                      <Image
-                        src="/images/icons8-facebook-48.png"
-                        alt="facebook"
-                        width={28}
-                        height={28}
-                      />
-                      <span className="text-dark ms-1 text-truncate">
-                        Facebook
-                      </span>
-                    </ProgressButton>
-
-                    <ProgressButton
-                      className="border w-50"
-                      variant="light"
-                      theme="outline"
-                      disabled={isSubmitting || !!oauthLogin}
-                      loading={oauthLogin === "google"}
-                      onClick={async () => {
-                        try {
-                          setError(undefined);
-                          setOauthLogin("google");
-                          await googleLogin();
-                        } catch (error) {
-                          setError(parseErrorResponse(error));
-                        } finally {
-                          setOauthLogin(undefined);
-                        }
-                      }}
-                    >
-                      <Image
-                        src="/images/icons8-google-48.png"
-                        alt="google"
-                        width={28}
-                        height={28}
-                      />
-                      <span className="text-dark ms-1 text-truncate">
-                        Google
-                      </span>
-                    </ProgressButton>
-                  </div>
                 </div>
               </form>
             </div>

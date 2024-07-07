@@ -12,6 +12,8 @@ export type ShopSubscriptionStatus = "PENDING" | "SUCCESS" | "FAILED";
 
 export type UserRole = "USER" | "ADMIN" | "OWNER";
 
+export type ShopMemberRole = "ADMIN" | "OWNER";
+
 export type Permission =
   | "DASHBOARD_READ"
   | "BANNER_READ"
@@ -44,6 +46,7 @@ export interface PageData<T> {
 }
 
 export interface AuthResult {
+  user: User;
   accessToken: string;
   refreshToken: string;
 }
@@ -64,6 +67,7 @@ export interface User {
   image?: string;
   disabled?: boolean;
   emailVerified?: boolean;
+  phoneNumberVerified?: boolean;
   permissions?: Permission[];
   audit?: Audit;
 }
@@ -143,10 +147,9 @@ export interface Market {
 }
 
 export interface ShopMember {
-  userId: number;
-  shopId: number;
-  role: string;
+  role: ShopMemberRole;
   member: User;
+  audit: Audit;
 }
 
 export interface Shop {
@@ -527,4 +530,9 @@ export interface DashboardData {
   totalProduct: number;
   totalUser: number;
   recentSubscriptions: ShopSubscription[];
+}
+
+export interface SmspohResult {
+  status: boolean;
+  requestId: number;
 }

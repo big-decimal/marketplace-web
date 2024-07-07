@@ -16,6 +16,7 @@ import DiscountEdit from "@/components/shop/DiscountEdit";
 import { deleteDiscount, findDiscounts } from "@/services/DiscountService";
 import { RiPencilFill } from "@remixicon/react";
 import { useContext, useState } from "react";
+import { toast } from "react-toastify";
 import useSWR from "swr";
 
 function DiscountsPage({ shopId }: { shopId: number }) {
@@ -230,7 +231,7 @@ function DiscountsPage({ shopId }: { shopId: number }) {
             mutate();
           } catch (error) {
             const msg = parseErrorResponse(error);
-            console.log(msg);
+            toast.error(msg);
           } finally {
             setDiscount(undefined);
             progressContext.update(false);

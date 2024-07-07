@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 import { useCategories } from "@/common/hooks";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { Category, CategoryForm } from "@/common/models";
 import {
   parseErrorResponse,
@@ -333,7 +333,7 @@ function CategoryEdit({ id }: { id: number }) {
                         <input
                           ref={fileRef}
                           type="file"
-                          accept="image/x-png,image/jpeg"
+                          accept="image/x-png,image/jpeg,image/png"
                           className="d-none"
                           onChange={handleImageChange}
                         />

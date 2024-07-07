@@ -7,23 +7,8 @@ import { InputProps } from "./Input";
 interface PasswordInputProps extends InputProps<HTMLInputElement> {}
 
 const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
-  (props, ref) => {
+  ({ id, label, className, error, style, type, ...props }, ref) => {
     const [isPassword, setIsPassword] = useState(true);
-
-    const {
-      label,
-      id,
-      name,
-      autoComplete,
-      placeholder,
-      disabled,
-      value,
-      defaultValue,
-      onChange,
-      onBlur,
-      error,
-      height = formControlHeight
-    } = props;
 
     return (
       <>
@@ -33,18 +18,12 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             ref={ref}
             id={id}
             type={isPassword ? "password" : "text"}
-            name={name}
-            autoComplete={autoComplete}
             className={`form-control px-3 ${error ? "is-invalid" : ""}`}
-            placeholder={placeholder}
-            disabled={disabled}
-            value={value}
-            defaultValue={defaultValue}
-            onChange={onChange}
-            onBlur={onBlur}
             style={{
-              height: height
+              ...style,
+              height: formControlHeight
             }}
+            {...props}
           />
           <div
             className="input-group-text px-3"

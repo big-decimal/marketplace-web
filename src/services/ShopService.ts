@@ -1,4 +1,4 @@
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import {
   PageData,
   PaymentTokenResult,
@@ -6,6 +6,7 @@ import {
   ShopContact,
   ShopCreateForm,
   ShopLicense,
+  ShopMember,
   ShopMonthlySale,
   ShopSetting,
   ShopStatistic,
@@ -17,6 +18,7 @@ export interface ShopQuery {
   q?: string;
   page?: number;
   "city-id"?: number;
+  "market-id"?: number;
 }
 
 export async function createShop(values: ShopCreateForm) {
@@ -277,4 +279,52 @@ export async function getShopLicenses(shopId: number) {
   await validateResponse(resp);
 
   return resp.json() as Promise<ShopLicense[]>;
+}
+
+export async function getShopMembers(shopId: number) {
+  const url = `/vendor/shops/${shopId}/members`;
+
+  const resp = await makeApiRequest({ url, authenticated: true });
+
+  await validateResponse(resp);
+
+  return resp.json() as Promise<ShopMember[]>;
+}
+
+export async function getShopMember(shopId: number, userId: number) {
+  const url = `/vendor/shops/${shopId}/members/${userId}`;
+
+  const resp = await makeApiRequest({ url, authenticated: true });
+
+  await validateResponse(resp);
+
+  return resp.json() as Promise<ShopMember>;
+}
+
+export async function createShopMember(shopId: number, phone: string) {
+  const url = `/vendor/shops/${shopId}/members/${phone}`;
+
+  const resp = await makeApiRequest({
+    url,
+    options: {
+      method: "POST"
+    },
+    authenticated: true
+  });
+
+  await validateResponse(resp);
+}
+
+export async function deleteShopMember(shopId: number, userId: number) {
+  const url = `/vendor/shops/${shopId}/members/${userId}`;
+
+  const resp = await makeApiRequest({
+    url,
+    options: {
+      method: "DELETE"
+    },
+    authenticated: true
+  });
+
+  await validateResponse(resp);
 }

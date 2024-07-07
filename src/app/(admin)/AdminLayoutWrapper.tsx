@@ -3,13 +3,7 @@ import { withAuthentication } from "@/common/WithAuthentication";
 import { AuthenticationContext } from "@/common/contexts";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 import { useRouter } from "next/navigation";
-import {
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState
-} from "react";
+import { ReactNode, useContext, useEffect, useRef, useState } from "react";
 import Footer from "./Footer";
 import Header from "./Header";
 import SideMenu from "./SideMenu";
@@ -89,7 +83,11 @@ function AdminLayoutWrapper({ children }: { children: ReactNode }) {
         </m.div>
       </LazyMotion>
 
-      <div ref={contentRef} className="h-100 overflow-auto flex-grow-1">
+      <div
+        ref={contentRef}
+        className="flex-grow-1"
+        style={{ overflow: "hidden" }}
+      >
         <div className="d-flex flex-column h-100">
           <div className="flex-shrink-0">
             <Header
@@ -99,7 +97,14 @@ function AdminLayoutWrapper({ children }: { children: ReactNode }) {
             />
           </div>
 
-          <div className="container-fluid flex-grow-1 py-3">{children}</div>
+          <div
+            className="container-fluid flex-grow-1 py-3"
+            style={{
+              overflowY: "auto"
+            }}
+          >
+            {children}
+          </div>
 
           <div className="flex-shrink-0">
             <Footer />

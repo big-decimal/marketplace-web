@@ -1,14 +1,7 @@
-import { firebaseAuth } from "@/common/firebase.config";
 import { parseErrorResponse, setEmptyOrString } from "@/common/utils";
 import ProgressButton from "@/components/ProgressButton";
 import { PasswordInput } from "@/components/forms";
-import {
-  AuthErrorCodes,
-  EmailAuthProvider,
-  ProviderId,
-  reauthenticateWithCredential,
-  updatePassword
-} from "firebase/auth";
+import { changePassword } from "@/services/AuthService";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
@@ -28,41 +21,18 @@ export default function ChangePassword() {
 
   const executeChange = async (values: ChangePasswordForm) => {
     try {
-      const user = firebaseAuth.currentUser;
-      console.log(user);
-      if (!user || !user.email) {
-        throw "Unable to change password";
-      }
-
-      var pd = user.providerData.find(pd => pd.providerId === ProviderId.PASSWORD);
-
-      if (!pd) {
-        throw "Unable to change password";
-      }
-
-      const credential = EmailAuthProvider.credential(
-        user.email,
-        values.oldPassword!
-      );
-      const newCredential = await reauthenticateWithCredential(
-        user,
-        credential
-      );
-      await updatePassword(newCredential.user, values.newPassword!);
+      await changePassword({
+        oldPassword: values.oldPassword!,
+        newPassword: values.newPassword!
+      });
       toast.success("Password changed");
       reset({
         oldPassword: "",
         newPassword: "",
         confirmPassoword: ""
       });
-    } catch (error: any) {
-      if (error.code === AuthErrorCodes.INVALID_PASSWORD) {
-        toast.error("Current password incorrect");
-      } else if (error.code === AuthErrorCodes.INVALID_LOGIN_CREDENTIALS) {
-        toast.error("Current password incorrect");
-      } else {
-        toast.error(parseErrorResponse(error));
-      }
+    } catch (error) {
+      toast.error(parseErrorResponse(error));
     }
   };
 

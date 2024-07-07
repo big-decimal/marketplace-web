@@ -16,7 +16,7 @@ import { Select } from "@/components/forms";
 import Loading from "@/components/Loading";
 import Pagination from "@/components/Pagination";
 import { withAuthorization } from "@/common/withAuthorization";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import Link from "next/link";
 import { RiDeleteBinLine, RiPencilFill } from "@remixicon/react";
 import { ProgressContext } from "@/common/contexts";

@@ -15,7 +15,7 @@ import {
 import { DatePickerInput2, Input, Select } from "@/components/forms";
 import ProgressButton from "@/components/ProgressButton";
 import Tooltip from "@/components/Tooltip";
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import Link from "next/link";

@@ -54,7 +54,7 @@ function ProductsPage(props: ShopProductListingProps) {
 
     return (
       <>
-        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3">
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
           {data.contents.map((p, i) => {
             return (
               <div key={p.id} className="col">

@@ -49,7 +49,7 @@ function ProfilePage() {
           <div className="ms-3 text-truncate">
             <h6 className="mb-0">{user?.name ?? ""}</h6>
             <span className="text-muted small">
-              {user?.email ?? user?.phone ?? ""}
+              {user?.phone ?? ""}
             </span>
           </div>
           <div className="ms-auto">

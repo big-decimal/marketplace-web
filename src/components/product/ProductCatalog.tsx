@@ -42,7 +42,7 @@ function ProductCatalog(props: ProductCatalogProps) {
 
   return (
     <>
-      <div className={`row row-cols-1 row-cols-sm-2 row-cols-lg-${gridCount} g-3`}>
+      <div className={`row row-cols-2 row-cols-sm-2 row-cols-lg-${gridCount} g-3`}>
         {data.contents.map((p, i) => {
           return (
             <div className="col" key={p.id}>

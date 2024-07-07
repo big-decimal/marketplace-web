@@ -12,6 +12,7 @@ import {
   RiAddCircleLine,
   RiBuildingLine,
   RiCloseLine,
+  RiGlobalLine,
   RiSearchLine,
   RiStore3Line
 } from "@remixicon/react";
@@ -74,7 +75,7 @@ function Header() {
     };
   }, []);
 
-  const localeImage = <span>{locale.toUpperCase()}</span>;
+  const localeImage = <RiGlobalLine size={20} />;
 
   const localeItems = (
     <>
@@ -98,14 +99,14 @@ function Header() {
           <div className="container flex-nowrap">
             <Link href="/" className="navbar-brand hstack">
               <img
-                  src="/images/logo-h.png"
-                  alt=""
-                  style={{
-                    objectFit: "contain",
-                    height: 46
-                  }}
-                  className="img-fluid me-2"
-                />
+                src="/images/logo-h.png"
+                alt=""
+                style={{
+                  objectFit: "contain",
+                  height: 46
+                }}
+                className="img-fluid me-2"
+              />
               {/* <h3 className="fw-bold mb-0 text-secondary d-none d-md-block">
                 {process.env.NEXT_PUBLIC_APP_NAME}
               </h3> */}
@@ -255,7 +256,6 @@ function Header() {
 
                 <div className="flex-grow-1"></div>
 
-                <AccountDropdown onNavClick={() => offcanvas.current?.hide()} />
                 <AuthenticationContext.Consumer>
                   {({ status }) => {
                     if (status === "loading") {
@@ -303,7 +303,7 @@ function Header() {
               </div>
             </div>
 
-            <div className="navbar-nav ms-3 d-none d-lg-block">
+            <div className="navbar-nav d-none d-lg-block">
               <Dropdown
                 toggle={localeImage}
                 className="nav-item"
@@ -323,8 +323,12 @@ function Header() {
               </Dropdown>
             </div>
 
+            <div className="ms-auto">
+              <AccountDropdown onNavClick={() => offcanvas.current?.hide()} />
+            </div>
+
             <button
-              className="navbar-toggler ms-auto border-0"
+              className="navbar-toggler border-0"
               type="button"
               data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasNavbar"

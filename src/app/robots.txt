@@ -3,4 +3,4 @@ Allow: /
 Disallow: /profile/
 Disallow: /admin/
 Disallow: /usermgmt
-Disallow: /verify-email
+Disallow: /verify-phone

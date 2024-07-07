@@ -40,8 +40,8 @@ function AddToCartButton({
       }`}
       onClick={() => {
         if (status === "success") {
-          if (!user?.emailVerified) {
-            router.push("/verify-email");
+          if (!user?.phoneNumberVerified) {
+            router.push("/verify-phone");
             return;
           }
           setAdding(true);

@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
-import makeApiRequest from "@/common/makeApiRequest";
+import makeApiRequest from "@/common/make-api-request";
 import { Banner, BannerForm } from "@/common/models";
 import {
   parseErrorResponse,
@@ -224,7 +224,7 @@ function BannerEdit({ id }: { id: number }) {
                     <input
                       ref={fileRef}
                       type="file"
-                      accept="image/x-png,image/jpeg"
+                      accept="image/x-png,image/jpeg,image/png"
                       className="d-none"
                       onChange={handleImageChange}
                     />

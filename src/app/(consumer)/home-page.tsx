@@ -7,7 +7,7 @@ import Alert from "@/components/Alert";
 import { ProductGridItem } from "@/components/product";
 import Image from "next/image";
 import Link from "next/link";
-import { Autoplay, Pagination } from "swiper/modules";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 const HomePage = ({ data }: { data?: HomeData }) => {
@@ -98,97 +98,78 @@ const HomePage = ({ data }: { data?: HomeData }) => {
         </div>
       </div>
 
-      {/* <div className="d-flex overflow-auto scrollbar-none mb-4 d-lg-none">
-        {data.categories.map((e, i) => {
-          return (
-            <Link key={e.id} href={`/${e.slug}`}>
-              <a
-                className={
-                  "btn btn-primary text-nowrap " + (i > 0 ? "ms-2" : "")
-                }
-              >
-                {e.name}
-              </a>
-            </Link>
-          );
-        })}
-      </div> */}
-
-      {/* {data.featuredShops && (
-        <>
-          <div className="d-flex align-items-center justify-content-between mb-4">
-            <h4
-              className="fw-semibold text-nowrap"
-              style={{ textOverflow: "ellipsis", overflowX: "clip" }}
-            >
-              Featured shops
-            </h4>
-            <Link
-              href="/shops"
-              className="text-decoration-none fw-medium text-nowrap"
-            >
-              View all
-            </Link>
-          </div>
-          <div className="mb-5">
-            <Swiper
-              spaceBetween={20}
-              slidesPerView={2}
-              preventClicks={false}
-              preventClicksPropagation={false}
-              pagination={{
-                el: ""
-              }}
-              autoplay={{
-                delay: 3000,
-                disableOnInteraction: false
-              }}
-              breakpoints={{
-                640: {
-                  slidesPerView: 3,
-                  spaceBetween: 20
-                },
-                768: {
-                  slidesPerView: 5,
-                  spaceBetween: 40
-                },
-                1024: {
-                  slidesPerView: 6,
-                  spaceBetween: 50
-                }
-              }}
-              modules={[Autoplay, Pagination]}
-            >
-              {data.featuredShops.map((s, i) => {
-                return (
-                  <SwiperSlide key={i}>
-                    <Link
-                      href={`/shops/${s.slug}`}
-                      className="vstack gap-3 position-relative align-items-center text-decoration-none"
-                    >
-                      <div
-                        className=""
-                        onContextMenu={(e) => e.preventDefault()}
-                      >
-                        <Image
-                          src={s.logo ?? "/images/placeholder.jpeg"}
-                          alt="Logo image"
-                          className="rounded-circle"
-                          width={100}
-                          height={100}
-                          objectFit="cover"
-                          priority
-                        />
-                      </div>
-                      <h6 className="text-truncate text-dark">{s.name}</h6>
-                    </Link>
-                  </SwiperSlide>
-                );
-              })}
-            </Swiper>
-          </div>
-        </>
-      )} */}
+      <div className="d-flex align-items-center justify-content-between mb-4">
+        <h4
+          className="fw-semibold text-nowrap"
+          style={{ textOverflow: "ellipsis", overflowX: "clip" }}
+        >
+          Featured shops
+        </h4>
+        {/* <Link
+          href="/shops"
+          className="text-decoration-none fw-medium text-nowrap"
+        >
+          View all
+        </Link> */}
+      </div>
+      <div className="mb-5">
+        <Swiper
+          spaceBetween={20}
+          slidesPerView={2}
+          // preventClicks={false}
+          // preventClicksPropagation={false}
+          pagination={{
+            el: ""
+          }}
+          autoplay={{
+            delay: 3000,
+            disableOnInteraction: false
+          }}
+          breakpoints={{
+            640: {
+              slidesPerView: 3,
+              spaceBetween: 20
+            },
+            768: {
+              slidesPerView: 5,
+              spaceBetween: 40
+            },
+            1024: {
+              slidesPerView: 6,
+              spaceBetween: 50
+            }
+          }}
+          modules={[Autoplay, Pagination, Navigation]}
+        >
+          {data.featuredShops?.map((s, i) => {
+            return (
+              <SwiperSlide key={i}>
+                <Link
+                  href={`/shops/${s.slug}`}
+                  className="vstack gap-3 position-relative align-items-center text-decoration-none"
+                >
+                  <div className="" onContextMenu={(e) => e.preventDefault()}>
+                    <Image
+                      src={s.logo ?? "/images/placeholder.jpeg"}
+                      alt="Logo image"
+                      className="rounded-circle img img-thumbnail"
+                      width={0}
+                      height={0}
+                      priority
+                      style={{
+                        objectFit: "cover",
+                        width: 100,
+                        height: 100,
+                      }}
+                    />
+                  </div>
+                  <h6 className="text-truncate text-dark">{s.name}</h6>
+                </Link>
+              </SwiperSlide>
+            );
+          })}
+        </Swiper>
+      </div>
 
       <div className="d-flex align-items-center justify-content-between mb-3">
         <h4

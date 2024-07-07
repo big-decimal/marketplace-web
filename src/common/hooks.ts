@@ -73,7 +73,7 @@ export function useLoginUser() {
     "/login-user",
     getLoginUser,
     {
-      revalidateOnFocus: false
+      revalidateOnFocus: false,
     }
   );
 
