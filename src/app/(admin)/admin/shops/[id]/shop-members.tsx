@@ -1,11 +1,22 @@
 "use client";
 
-import { parseErrorResponse } from "@/common/utils";
+import makeApiRequest from "@/common/make-api-request";
+import { ShopMember } from "@/common/models";
+import { parseErrorResponse, validateResponse } from "@/common/utils";
 import Alert from "@/components/Alert";
 import Loading from "@/components/Loading";
-import { getShopMembers } from "@/services/ShopService";
 import { Fragment } from "react";
 import useSWR from "swr";
+
+const getShopMembers = async (shopId: number) => {
+  const url = `/admin/shops/${shopId}/members`;
+
+  const resp = await makeApiRequest({ url, authenticated: true });
+
+  await validateResponse(resp);
+
+  return resp.json() as Promise<ShopMember[]>;
+}
 
 export default function ShopMembers({ shopId }: { shopId: number }) {
   const { data, error, isLoading } = useSWR(
