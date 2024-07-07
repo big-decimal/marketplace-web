@@ -262,7 +262,7 @@ function ProductPage({ product }: { product: Product | null }) {
                     );
                   })}
                 </div>
-                <div className="flex-grow-1 w-100">
+                <div className="flex-grow-1 w-100 overflow-hidden">
                   <SwiperView
                     onInit={setSwiper}
                     className="overflow-hidden border rounded position-relative"
