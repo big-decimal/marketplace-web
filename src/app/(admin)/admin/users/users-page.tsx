@@ -10,7 +10,7 @@ import {
   parseErrorResponse,
   validateResponse
 } from "@/common/utils";
-import { withAuthorization } from "@/common/withAuthorization";
+import { hasAccess, withAuthorization } from "@/common/withAuthorization";
 import Alert from "@/components/Alert";
 import Dropdown from "@/components/Dropdown";
 import Loading from "@/components/Loading";
@@ -18,7 +18,7 @@ import Modal from "@/components/Modal";
 import Pagination from "@/components/Pagination";
 import { verifyPhoneNumber } from "@/services/UserService";
 import { RiPencilFill } from "@remixicon/react";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import useSWR from "swr";
 import UpdatePassword from "./update-password";
@@ -69,6 +69,12 @@ function UsersPage() {
   const [isShowUpdatePassword, setShowUpdatePassword] = useState(false);
 
   const [query, setQuery] = useState<UserQuery>({});
+
+  const { write } = useMemo(() => {
+    return {
+      write: hasAccess(["USER_WRITE"], authContext.user)
+    };
+  }, [authContext.user]);
 
   const { data, error, isLoading, mutate } = useSWR(
     ["/admin/users", query],
@@ -161,93 +167,96 @@ function UsersPage() {
                   <td>{formatTimestamp(u.audit?.createdAt, true)}</td>
                   <td>
                     <div className="hstack align-items-center gap-2">
-                      {u.id !== authContext.user?.id &&
-                        authContext.user?.role === "OWNER" && (
-                          <Dropdown
-                            toggle={<RiPencilFill size={20} />}
-                            popperConfig={{
-                              strategy: "fixed"
+                      {u.id !== authContext.user?.id && write && (
+                        <Dropdown
+                          toggle={<RiPencilFill size={20} />}
+                          popperConfig={{
+                            strategy: "fixed"
+                          }}
+                          toggleClassName="btn btn-primary"
+                          menuClassName="dropdown-menu-end"
+                        >
+                          <li
+                            role={"button"}
+                            className="dropdown-item"
+                            onClick={() => {
+                              setUser(u);
+                              setShowUpdatePhone(true);
                             }}
-                            toggleClassName="btn btn-primary"
-                            menuClassName="dropdown-menu-end"
                           >
+                            Update phone
+                          </li>
+                          <li
+                            role={"button"}
+                            className="dropdown-item"
+                            onClick={() => {
+                              setUser(u);
+                              setShowUpdatePassword(true);
+                            }}
+                          >
+                            Update password
+                          </li>
+                          {!u.phoneNumberVerified && (
                             <li
                               role={"button"}
                               className="dropdown-item"
                               onClick={() => {
-                                setUser(u);
-                                setShowUpdatePhone(true);
+                                verifyPhone(u.id);
                               }}
                             >
-                              Update phone
+                              Verify phone
                             </li>
-                            <li
-                              role={"button"}
-                              className="dropdown-item"
-                              onClick={() => {
-                                setUser(u);
-                                setShowUpdatePassword(true);
-                              }}
-                            >
-                              Update password
-                            </li>
-                            {!u.phoneNumberVerified && (
-                              <li
-                                role={"button"}
-                                className="dropdown-item"
-                                onClick={() => {
-                                  verifyPhone(u.id);
-                                }}
-                              >
-                                Verify phone
-                              </li>
-                            )}
-                            <div className="dropdown-divider"></div>
-                            {u.role === "USER" ? (
-                              <li
-                                role={"button"}
-                                className="dropdown-item"
-                                onClick={() => {
-                                  progressContext.update(true);
-                                  grantAdmin(u.id)
-                                    .then(() => {
-                                      toast.success("User granted");
-                                      mutate();
-                                    })
-                                    .catch((e) => {
-                                      toast.error(parseErrorResponse(e));
-                                    })
-                                    .finally(() => {
-                                      progressContext.update(false);
-                                    });
-                                }}
-                              >
-                                Grant Admin
-                              </li>
-                            ) : (
-                              <li
-                                role={"button"}
-                                className="dropdown-item text-danger"
-                                onClick={() => {
-                                  progressContext.update(true);
-                                  dismissAdmin(u.id)
-                                    .then(() => {
-                                      toast.success("User dismissed");
-                                      mutate();
-                                    })
-                                    .catch((e) => {
-                                      toast.error(parseErrorResponse(e));
-                                    })
-                                    .finally(() => {
-                                      progressContext.update(false);
-                                    });
-                                }}
-                              >
-                                Dismiss Admin
-                              </li>
-                            )}
-                          </Dropdown>
-                        )}
+                          )}
+                          {authContext.user?.role === "OWNER" && (
+                            <>
+                              <div className="dropdown-divider"></div>
+                              {u.role === "USER" ? (
+                                <li
+                                  role={"button"}
+                                  className="dropdown-item"
+                                  onClick={() => {
+                                    progressContext.update(true);
+                                    grantAdmin(u.id)
+                                      .then(() => {
+                                        toast.success("User granted");
+                                        mutate();
+                                      })
+                                      .catch((e) => {
+                                        toast.error(parseErrorResponse(e));
+                                      })
+                                      .finally(() => {
+                                        progressContext.update(false);
+                                      });
+                                  }}
+                                >
+                                  Grant Admin
+                                </li>
+                              ) : (
+                                <li
+                                  role={"button"}
+                                  className="dropdown-item text-danger"
+                                  onClick={() => {
+                                    progressContext.update(true);
+                                    dismissAdmin(u.id)
+                                      .then(() => {
+                                        toast.success("User dismissed");
+                                        mutate();
+                                      })
+                                      .catch((e) => {
+                                        toast.error(parseErrorResponse(e));
+                                      })
+                                      .finally(() => {
+                                        progressContext.update(false);
+                                      });
+                                  }}
+                                >
+                                  Dismiss Admin
+                                </li>
+                              )}
+                            </>
+                          )}
+                        </Dropdown>
+                      )}
                     </div>
                   </td>
                 </tr>
