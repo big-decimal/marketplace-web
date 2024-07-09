@@ -46,7 +46,9 @@ function CreateShopPage() {
     setValue,
     handleSubmit,
     control
-  } = useForm<ShopCreateForm>({ defaultValues: { cashOnDelivery: true } });
+  } = useForm<ShopCreateForm>({
+    defaultValues: { cashOnDelivery: true }
+  });
 
   const { fields, append, remove } = useFieldArray({
     control: control,
@@ -114,7 +116,7 @@ function CreateShopPage() {
 
   const executeCreate = async (shop: ShopCreateForm) => {
     try {
-      //console.log(shop);
+      console.log(shop);
       const result = await createShop(shop);
       if (result) {
         window.location.href = result.webPaymentUrl;
@@ -166,8 +168,8 @@ function CreateShopPage() {
       </div>
 
       <div className="container">
-        <div className="row g-4 mb-5">
-          <div className="col-lg-8 mb-4">
+        <div className="row g-3 mb-5">
+          <div className="col-lg-8">
             <div className="card mb-3">
               <div className="card-header py-2h">
                 <h4 className="mb-0">Basic information</h4>
@@ -407,6 +409,41 @@ function CreateShopPage() {
                 <span className="text-muted">
                   Shop approval process will take longer if no license attached.
                 </span>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="card-header py-2h">
+                <div className="hstack">
+                  <h4 className="mb-0">Legal information</h4>
+                  <span className="text-muted ms-1">(Optional)</span>
+                </div>
+              </div>
+
+              <div className="card-body">
+                <div className="row g-3">
+                  <div className="col-lg-6">
+                    <Input
+                      label="Owner name"
+                      placeholder="Enter owner name"
+                      {...register("legal.ownerName")}
+                    />
+                  </div>
+                  <div className="col-lg-6">
+                    <Input
+                      label="Seller name"
+                      placeholder="Enter seller name"
+                      {...register("legal.sellerName")}
+                    />
+                  </div>
+                  <div className="col-12">
+                    <Input
+                      label="Shop number"
+                      placeholder="Enter shop number"
+                      {...register("legal.shopNumber")}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>

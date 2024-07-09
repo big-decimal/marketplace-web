@@ -59,7 +59,6 @@ export const AuthenticationContextProvider = ({
   useEffect(() => {
     const onStorage = (evt: StorageEvent) => {
       const token = localStorage.getItem("access_token");
-      console.log(evt);
       if (evt.key === 'access_token' && !evt.oldValue && evt.newValue) {
         loadUser();
       } else if (!token) {

@@ -14,7 +14,7 @@ const ShopLicenses = ({ shopId }: { shopId: number }) => {
   const [showFull, setShowFull] = useState(false);
 
   const { data, error, isLoading } = useSWR(
-    `/vendor/shops/${shopId}/licenses`,
+    `/content/shops/${shopId}/licenses`,
     () => getShopLicenses(shopId),
     {
       revalidateOnFocus: false
@@ -69,7 +69,7 @@ const ShopLicenses = ({ shopId }: { shopId: number }) => {
 
   return (
     <>
-      <div className="card">
+      <div className="card mb-3">
         <div className="card-header py-3">
           <h5 className="mb-0">Licenses</h5>
         </div>

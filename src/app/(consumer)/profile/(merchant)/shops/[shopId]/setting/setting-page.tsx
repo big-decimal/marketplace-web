@@ -5,8 +5,9 @@ import Alert from "@/components/Alert";
 import Loading from "@/components/Loading";
 import ShopContactForm from "./shop-contact-form";
 import ShopGeneralForm from "./shop-general-form";
-import ShopPaymentForm from "./shop-payment-form";
+import ShopLegalForm from "./shop-legal-form";
 import ShopLicenseForm from "./shop-license-form";
+import ShopPaymentForm from "./shop-payment-form";
 
 function SettingPage({ shopId }: { shopId: number }) {
   const { shop, error, isLoading } = useShop(shopId);
@@ -36,6 +37,9 @@ function SettingPage({ shopId }: { shopId: number }) {
       </div>
       <div className="col-12">
         <ShopLicenseForm shopId={shopId} />
+      </div>
+      <div className="col-12">
+        <ShopLegalForm shop={shop} />
       </div>
     </div>
   );

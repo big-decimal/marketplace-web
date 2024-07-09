@@ -222,7 +222,36 @@ function ShopPage({ shopId }: { shopId: number }) {
               <div dangerouslySetInnerHTML={{ __html: data.about ?? "" }}></div>
             </div>
           </div>
+
           <ShopLicenses shopId={shopId} />
+
+          <div className="card mb-3">
+            <div className="card-header py-3">
+              <h5 className="mb-0">Legal information</h5>
+            </div>
+            <div className="card-body">
+              <div className="row g-3">
+                <div className="col-lg-6">
+                  <h6 className="fw-semibold mb-1">Owner Name</h6>
+                  <div className="text-muted">
+                    {data.legal?.ownerName ?? "--"}
+                  </div>
+                </div>
+                <div className="col-lg-6">
+                  <h6 className="fw-semibold mb-1">Seller Name</h6>
+                  <div className="text-muted">
+                    {data.legal?.sellerName ?? "--"}
+                  </div>
+                </div>
+                <div className="col-12">
+                  <h6 className="fw-semibold mb-1">Shop Number</h6>
+                  <div className="text-muted">
+                    {data.legal?.shopNumber ?? "--"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

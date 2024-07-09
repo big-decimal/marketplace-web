@@ -185,7 +185,7 @@ const HomePage = ({ data }: { data?: HomeData }) => {
           View all
         </Link> */}
       </div>
-      <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-5">
+      <div className="row row-cols-2 row-cols-sm-2 row-cols-lg-4 g-3 mb-5">
         {data?.featuredProducts?.map((p, i) => {
           return (
             <div className="col" key={p.id}>
@@ -209,7 +209,7 @@ const HomePage = ({ data }: { data?: HomeData }) => {
           View all
         </Link> */}
       </div>
-      <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-5">
+      <div className="row row-cols-2 row-cols-sm-2 row-cols-lg-4 g-3 mb-5">
         {data?.discountProducts?.map((p, i) => {
           return (
             <div className="col" key={p.id}>

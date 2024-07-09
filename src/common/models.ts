@@ -167,6 +167,7 @@ export interface Shop {
   cover?: string;
   about?: string;
   contact?: ShopContact;
+  legal?: ShopLegal;
   audit?: Audit;
 }
 
@@ -177,6 +178,12 @@ export interface ShopContact {
   latitude?: number;
   longitude?: number;
   city?: City;
+}
+
+export interface ShopLegal {
+  ownerName?: string;
+  sellerName?: string;
+  shopNumber?: string;
 }
 
 export interface ShopUpdate {
@@ -282,6 +289,7 @@ export interface ShopCreateForm {
   logoImage?: File;
   coverImage?: File;
   licenses?: ShopLicense[];
+  legal?: ShopLegal;
 }
 
 export interface ShopMonthlySale {

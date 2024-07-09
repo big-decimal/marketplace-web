@@ -5,6 +5,7 @@ import {
   Shop,
   ShopContact,
   ShopCreateForm,
+  ShopLegal,
   ShopLicense,
   ShopMember,
   ShopMonthlySale,
@@ -39,6 +40,12 @@ export async function createShop(values: ShopCreateForm) {
   values.licenses?.forEach((l, i) => {
     l.file && formData.append(`licenses[${i}]`, l.file);
   });
+
+  if (values.legal) {
+    values.legal.ownerName && formData.append("legal.ownerName", values.legal.ownerName);
+    values.legal.sellerName && formData.append("legal.sellerName", values.legal.sellerName);
+    values.legal.shopNumber && formData.append("legal.shopNumber", values.legal.shopNumber);
+  }
 
   const resp = await makeApiRequest({
     url,
@@ -84,6 +91,23 @@ export async function updateShopContact(values: ShopContact) {
     options: {
       method: "PUT",
       body: JSON.stringify({ ...values, cityId: values.city?.id }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    },
+    authenticated: true
+  });
+
+  await validateResponse(resp);
+}
+
+export async function updateShopLegal(shopId: number, values: ShopLegal) {
+  const url = `/vendor/shops/${shopId}/legal`;
+  const resp = await makeApiRequest({
+    url,
+    options: {
+      method: "PUT",
+      body: JSON.stringify(values),
       headers: {
         "Content-Type": "application/json"
       }
@@ -272,9 +296,9 @@ export async function deleteShopLicense(shopId: number, id: number) {
 }
 
 export async function getShopLicenses(shopId: number) {
-  const url = `/vendor/shops/${shopId}/licenses`;
+  const url = `/content/shops/${shopId}/licenses`;
 
-  const resp = await makeApiRequest({ url, authenticated: true });
+  const resp = await makeApiRequest({ url });
 
   await validateResponse(resp);
 
