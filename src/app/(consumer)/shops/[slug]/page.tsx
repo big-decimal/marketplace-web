@@ -26,19 +26,20 @@ export async function generateMetadata(
     const previousImages = (await parent).openGraph?.images || [];
 
     if (shop) {
+      const desc = process.env.NEXT_PUBLIC_APP_DESCRIPTION;
       return {
         title: shop.name,
-        description: shop.headline,
+        description: desc,
         openGraph: {
           url: `${process.env.NEXT_PUBLIC_BASE_URL}/shops/${shop.slug}`,
           title: shop.name,
-          description: shop.headline,
+          description: desc,
           images: [`${shop.cover ?? ""}`, ...previousImages],
           type: "website"
         },
         twitter: {
           title: shop.name,
-          description: shop.headline,
+          description: desc,
           card: "summary_large_image",
           images: [`${shop.cover ?? ""}`, ...previousImages]
         }

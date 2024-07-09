@@ -69,7 +69,7 @@ const ShopLicenses = ({ shopId }: { shopId: number }) => {
 
   return (
     <>
-      <div className="card">
+      <div className="card mb-3">
         <div className="card-header py-3">
           <h5 className="mb-0">Licenses</h5>
         </div>
