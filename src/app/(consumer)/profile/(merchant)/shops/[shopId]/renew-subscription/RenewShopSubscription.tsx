@@ -1,5 +1,6 @@
 "use client";
 import { withAuthentication } from "@/common/WithAuthentication";
+import { useShop } from "@/common/hooks";
 import { SubscriptionPlan, SubscriptionPromo } from "@/common/models";
 import { calcDiscount, formatNumber, parseErrorResponse } from "@/common/utils";
 import Alert from "@/components/Alert";
@@ -15,7 +16,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import useSWR, { useSWRConfig } from "swr";
+import useSWR from "swr";
 
 interface Props {
   shopId: number;
@@ -24,7 +25,7 @@ interface Props {
 function RenewShopSubscription({ shopId }: Props) {
   const router = useRouter();
 
-  const { mutate } = useSWRConfig();
+  const { shop, error, isLoading, mutate } = useShop(shopId);
 
   const [subscriptionPlan, setSubscriptionPlan] = useState<SubscriptionPlan>();
 
@@ -50,7 +51,11 @@ function RenewShopSubscription({ shopId }: Props) {
       const promo = subscriptionPromo;
       return (
         (subscriptionPlan?.price ?? 0) -
-        calcDiscount(promo.valueType!, promo.value!, subscriptionPlan?.price ?? 0)
+        calcDiscount(
+          promo.valueType!,
+          promo.value!,
+          subscriptionPlan?.price ?? 0
+        )
       );
     }
 
@@ -72,11 +77,10 @@ function RenewShopSubscription({ shopId }: Props) {
           window.location.href = result.webPaymentUrl;
         } else {
           toast.success("Subscription success");
-          mutate(`/vendor/shops/${shopId}`)
+          mutate();
           router.push(`/profile/shops/${shopId}/subscriptions`);
         }
       }, 500);
-      
     } catch (error) {
       setSubmitting(false);
       setShowPriceSummary(false);
@@ -100,40 +104,46 @@ function RenewShopSubscription({ shopId }: Props) {
 
   return (
     <>
-      <Alert
-        message="Select one of the subscription plans and continue to subscribe."
-      />
+      <Alert message="Select one of the subscription plans and continue to subscribe." />
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-        {plansState.data.map((sp, i) => {
-          return (
-            <div key={sp.id} className="col">
-              <div className="card h-100">
-                <div className="card-header py-2h">
-                  <h5 className="text-center mb-0">{sp.title}</h5>
-                </div>
-                <div className="card-body text-center">
-                  <h2 className="mb-3 card-title mt-2">
-                    {formatNumber(sp.price)} Ks
-                  </h2>
+        {plansState.data
+          .filter((sp) => {
+            if (sp.trial && (shop?.expiredAt ?? 0) > 0) {
+              return false;
+            }
 
-                  <div className="text-muted mb-4">
-                    Duration: {sp.duration} days
+            return true;
+          })
+          .map((sp, i) => {
+            return (
+              <div key={sp.id} className="col">
+                <div className="card h-100">
+                  <div className="card-header py-2h">
+                    <h5 className="text-center mb-0">{sp.title}</h5>
                   </div>
+                  <div className="card-body text-center">
+                    <h2 className="mb-3 card-title mt-2">
+                      {formatNumber(sp.price)} Ks
+                    </h2>
 
-                  <button
-                    className="btn btn-primary w-100"
-                    onClick={() => {
-                      setSubscriptionPlan(sp);
-                      setShowPriceSummary(true);
-                    }}
-                  >
-                    Select
-                  </button>
+                    <div className="text-muted mb-4">
+                      Duration: {sp.duration} days
+                    </div>
+
+                    <button
+                      className="btn btn-primary w-100"
+                      onClick={() => {
+                        setSubscriptionPlan(sp);
+                        setShowPriceSummary(true);
+                      }}
+                    >
+                      Select
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
 
       <Modal

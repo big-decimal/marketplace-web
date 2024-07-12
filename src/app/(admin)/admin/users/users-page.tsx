@@ -1,11 +1,9 @@
 "use client";
-import { formControlHeight } from "@/common/app.config";
 import { AuthenticationContext, ProgressContext } from "@/common/contexts";
 import makeApiRequest from "@/common/make-api-request";
 import { PageData, User } from "@/common/models";
 import {
   buildQueryParams,
-  debounce,
   formatTimestamp,
   parseErrorResponse,
   validateResponse
@@ -16,9 +14,15 @@ import Dropdown from "@/components/Dropdown";
 import Loading from "@/components/Loading";
 import Modal from "@/components/Modal";
 import Pagination from "@/components/Pagination";
-import { verifyPhoneNumber } from "@/services/UserService";
+import { Input } from "@/components/forms";
+import {
+  disableUser,
+  enableUser,
+  verifyPhoneNumber
+} from "@/services/UserService";
 import { RiPencilFill } from "@remixicon/react";
-import { useContext, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import useSWR from "swr";
 import UpdatePassword from "./update-password";
@@ -62,13 +66,25 @@ const dismissAdmin = async (userId: number) => {
 function UsersPage() {
   const authContext = useContext(AuthenticationContext);
   const progressContext = useContext(ProgressContext);
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-  const [inputType, setInputType] = useState("email");
   const [user, setUser] = useState<User>();
   const [isShowUpdatePhone, setShowUpdatePhone] = useState(false);
   const [isShowUpdatePassword, setShowUpdatePassword] = useState(false);
 
-  const [query, setQuery] = useState<UserQuery>({});
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+
+  const [query, setQuery] = useState<UserQuery>();
+
+  useEffect(() => {
+    const page = searchParams.get("page");
+    const phone = searchParams.get("phone");
+    setQuery({
+      phone: phone ?? undefined,
+      page: page && !isNaN(parseInt(page)) ? parseInt(page) : undefined
+    });
+  }, [searchParams]);
 
   const { write } = useMemo(() => {
     return {
@@ -78,21 +94,11 @@ function UsersPage() {
 
   const { data, error, isLoading, mutate } = useSWR(
     ["/admin/users", query],
-    ([url, q]) => getUsers(q),
+    ([url, q]) => (q ? getUsers(q) : undefined),
     {
       revalidateOnFocus: false
     }
   );
-
-  const updateInput = debounce((v) => {
-    setQuery((old) => {
-      return {
-        name: old.name,
-        page: undefined,
-        [inputType]: !v ? undefined : v
-      };
-    });
-  }, 800);
 
   const verifyPhone = async (userId: number) => {
     try {
@@ -106,16 +112,32 @@ function UsersPage() {
     }
   };
 
-  const content = () => {
-    if (isLoading) {
-      return <Loading />;
+  const enableOrDisableUser = async (userId: number, enable: boolean) => {
+    try {
+      progressContext.update(true);
+      if (enable) {
+        await enableUser(userId);
+      } else {
+        await disableUser(userId);
+      }
+      mutate();
+    } catch (error) {
+      toast.error(parseErrorResponse(error));
+    } finally {
+      progressContext.update(false);
     }
+  };
 
+  const content = () => {
     if (error) {
       return <Alert message={parseErrorResponse(error)} variant="danger" />;
     }
 
-    if (!data || data.totalElements === 0) {
+    if (!data || isLoading) {
+      return <Loading />;
+    }
+
+    if (data.totalElements === 0) {
       return <Alert message="No users found" variant="info" />;
     }
 
@@ -125,17 +147,20 @@ function UsersPage() {
           <table className="table align-middle">
             <thead className="text-nowrap align-middle">
               <tr>
+                <th scope="col" style={{ minWidth: 50 }}>
+                  NO.
+                </th>
                 <th scope="col" style={{ minWidth: 300 }}>
                   NAME
                 </th>
-                {/* <th scope="col" style={{ minWidth: 200 }}>
-                  EMAIL
-                </th> */}
                 <th scope="col" style={{ minWidth: 150 }}>
                   PHONE
                 </th>
-                <th scope="col" style={{ minWidth: 150 }}>
+                <th scope="col" style={{ minWidth: 120 }}>
                   VERIFIED
+                </th>
+                <th scope="col" style={{ minWidth: 120 }}>
+                  DISABLED
                 </th>
                 <th scope="col" style={{ minWidth: 100 }}>
                   ROLE
@@ -149,18 +174,17 @@ function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {data?.contents?.map((u, i) => (
+              {data.contents.map((u, i) => (
                 <tr key={u.id}>
+                  <td>{(i + 1) * (data.currentPage + 1)}</td>
                   <th scope="row" className="py-3">
                     {u.name}
                   </th>
-                  {/* <td>
-                    <span className="text-nowrap">{u.email ?? ""}</span>
-                  </td> */}
                   <td>
                     <span className="text-nowrap">{u.phone ?? ""}</span>
                   </td>
                   <td>{u.phoneNumberVerified ? "YES" : "NO"}</td>
+                  <td>{u.disabled ? "YES" : "NO"}</td>
                   <td>
                     <span className="text-nowrap">{u.role}</span>
                   </td>
@@ -173,7 +197,7 @@ function UsersPage() {
                           popperConfig={{
                             strategy: "fixed"
                           }}
-                          toggleClassName="btn btn-primary"
+                          toggleClassName="btn btn-default"
                           menuClassName="dropdown-menu-end"
                         >
                           <li
@@ -207,6 +231,15 @@ function UsersPage() {
                               Verify phone
                             </li>
                           )}
+                          <li
+                            role={"button"}
+                            className="dropdown-item"
+                            onClick={async () => {
+                              await enableOrDisableUser(u.id, !!u.disabled);
+                            }}
+                          >
+                            {u.disabled ? "Enable user" : "Disable user"}
+                          </li>
                           {authContext.user?.role === "OWNER" && (
                             <>
                               <div className="dropdown-divider"></div>
@@ -266,12 +299,22 @@ function UsersPage() {
         </div>
         <div className="d-flex justify-content-end pt-3">
           <Pagination
-            currentPage={data?.currentPage}
-            totalPage={data?.totalPage}
+            currentPage={data.currentPage}
+            totalPage={data.totalPage}
             onChange={(p) => {
-              setQuery((old) => {
-                return { ...old, page: p };
-              });
+              const params = new URLSearchParams(searchParams.toString());
+
+              if (p > 0) {
+                params.set("page", p.toString());
+              } else {
+                params.delete("page");
+              }
+
+              if (params.size > 0) {
+                router.push("/admin/users?" + params.toString());
+              } else {
+                router.push("/admin/users");
+              }
             }}
           />
         </div>
@@ -286,34 +329,35 @@ function UsersPage() {
           <h2 className="mb-0">Users</h2>
         </div>
         <div className="col-12 col-md-auto">
-          <div className="d-flex flex-nowrap">
-            <div className="d-flex">
-              <select
-                className="form-select bg-light rounded-0 rounded-start border-end-0"
-                value={inputType}
-                onChange={(e) => {
-                  setInputType(e.target.value);
-                }}
-              >
-                <option value="email">Email</option>
-                <option value="phone">Phone</option>
-              </select>
-            </div>
-            <div className="position-relative">
-              <input
-                className="form-control rounded-0 rounded-end"
-                type="search"
-                placeholder={`By ${inputType}...`}
-                aria-label="Search"
-                onChange={(evt) => {
-                  updateInput(evt.target.value);
-                }}
-                style={{
-                  height: formControlHeight
-                }}
-              />
-            </div>
-          </div>
+          <form
+            onSubmit={(evt) => {
+              evt.preventDefault();
+              const params = new URLSearchParams(searchParams.toString());
+              const phone = phoneInputRef.current?.value;
+
+              if (phone) {
+                params.set("phone", phone);
+              } else {
+                params.delete("phone");
+              }
+
+              params.delete('page');
+
+              if (params.size > 0) {
+                router.push("/admin/users?" + params.toString());
+              } else {
+                router.push("/admin/users");
+              }
+            }}
+          >
+            <Input
+              ref={phoneInputRef}
+              defaultValue={searchParams.get("phone") ?? ""}
+              type="search"
+              placeholder={`By phone...`}
+              aria-label="Search"
+            />
+          </form>
         </div>
       </div>
       {content()}

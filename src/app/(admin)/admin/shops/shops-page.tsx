@@ -5,7 +5,6 @@ import makeApiRequest from "@/common/make-api-request";
 import { City, Market, PageData, Shop, ShopStatus } from "@/common/models";
 import {
   buildQueryParams,
-  debounce,
   formatTimestamp,
   parseErrorResponse,
   validateResponse
@@ -17,7 +16,8 @@ import Pagination from "@/components/Pagination";
 import { AutocompleteSelect, Input, Select } from "@/components/forms";
 import { RiPencilFill } from "@remixicon/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import useSWR from "swr";
 
@@ -95,29 +95,44 @@ const FeaturedCheck = ({
 };
 
 function ShopsPage() {
-  const [query, setQuery] = useState<ShopQuery>({});
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const [query, setQuery] = useState<ShopQuery>();
+
+  const qInputRef = useRef<HTMLInputElement>(null);
 
   const { data, error, isLoading, mutate } = useSWR(
     ["/admin/shops", query],
-    ([url, q]) => getShops(q),
+    ([url, q]) => (q ? getShops(q) : undefined),
     {
       revalidateOnFocus: false
     }
   );
 
+  useEffect(() => {
+    const page = searchParams.get("page");
+    const q = searchParams.get("q");
+    const city = searchParams.get("city");
+    const market = searchParams.get("market");
+    const status = searchParams.get("status");
+    const featured = searchParams.get("featured");
+    setQuery({
+      q: q ?? undefined,
+      "city-id": city && !isNaN(parseInt(city)) ? parseInt(city) : undefined,
+      "market-id":
+        market && !isNaN(parseInt(market)) ? parseInt(market) : undefined,
+      status: status?.match(/PENDING|APPROVED|DISABLED/)
+        ? (status as ShopStatus)
+        : undefined,
+      featured: featured === "true" ? true : undefined,
+      page: page && !isNaN(parseInt(page)) ? parseInt(page) : undefined
+    });
+  }, [searchParams]);
+
   const citiesState = useCities();
 
   const marketsState = useMarkets();
-
-  const updateInput = debounce((v) => {
-    setQuery((old) => {
-      return {
-        ...old,
-        page: undefined,
-        q: !v ? undefined : v
-      };
-    });
-  }, 800);
 
   const statusView = (status?: ShopStatus) => {
     if (status === "APPROVED") {
@@ -135,15 +150,15 @@ function ShopsPage() {
   };
 
   const content = () => {
-    if (isLoading) {
-      return <Loading />;
-    }
-
     if (error) {
       return <Alert message={parseErrorResponse(error)} variant="danger" />;
     }
 
-    if (data?.totalElements === 0) {
+    if (!data || isLoading) {
+      return <Loading />;
+    }
+
+    if (data.totalElements === 0) {
       return <Alert message="No shops found" variant="info" />;
     }
 
@@ -153,6 +168,9 @@ function ShopsPage() {
           <table className="table align-middle">
             <thead className="text-nowrap align-middle">
               <tr>
+                <th scope="col" style={{ minWidth: 50 }}>
+                  NO.
+                </th>
                 <th scope="col" style={{ minWidth: 100 }}>
                   IMAGE
                 </th>
@@ -177,9 +195,10 @@ function ShopsPage() {
               </tr>
             </thead>
             <tbody>
-              {data?.contents?.map((s, i) => {
+              {data.contents.map((s, i) => {
                 return (
                   <tr key={s.id}>
+                    <td>{(i + 1) * (data.currentPage + 1)}</td>
                     <td className="py-3">
                       <img
                         className="rounded border"
@@ -220,9 +239,19 @@ function ShopsPage() {
             currentPage={data?.currentPage}
             totalPage={data?.totalPage}
             onChange={(p) => {
-              setQuery((old) => {
-                return { ...old, page: p };
-              });
+              const params = new URLSearchParams(searchParams.toString());
+
+              if (p > 0) {
+                params.set("page", p.toString());
+              } else {
+                params.delete("page");
+              }
+
+              if (params.size > 0) {
+                router.push("/admin/shops?" + params.toString());
+              } else {
+                router.push("/admin/shops");
+              }
             }}
           />
         </div>
@@ -238,16 +267,35 @@ function ShopsPage() {
         </div>
 
         <div className="col-12 col-md-auto">
-          <Input
-            id="searchInput"
-            name="q"
-            type="search"
-            placeholder="Search..."
-            onChange={(evt) => {
-              var q = evt.target.value;
-              updateInput(q);
+          <form
+            onSubmit={(evt) => {
+              evt.preventDefault();
+              const params = new URLSearchParams(searchParams.toString());
+              const q = qInputRef.current?.value;
+
+              if (q) {
+                params.set("q", q);
+              } else {
+                params.delete("q");
+              }
+
+              params.delete("page");
+
+              if (params.size > 0) {
+                router.push("/admin/shops?" + params.toString());
+              } else {
+                router.push("/admin/shops");
+              }
             }}
-          />
+          >
+            <Input
+              ref={qInputRef}
+              name="q"
+              type="search"
+              placeholder="Search..."
+              defaultValue={searchParams.get("q") ?? ""}
+            />
+          </form>
         </div>
         <div className="col-12 col-md-auto">
           <AutocompleteSelect<City, number>
@@ -259,13 +307,21 @@ function ShopsPage() {
             getOptionKey={(c) => c.id}
             getOptionLabel={(c) => c.name}
             onChange={(c) => {
-              setQuery((old) => {
-                return {
-                  ...old,
-                  "city-id": c?.id,
-                  page: undefined
-                };
-              });
+              const params = new URLSearchParams(searchParams.toString());
+
+              if (c?.id) {
+                params.set("city", c.id.toString());
+              } else {
+                params.delete("city");
+              }
+
+              params.delete("page");
+
+              if (params.size > 0) {
+                router.push("/admin/shops?" + params.toString());
+              } else {
+                router.push("/admin/shops");
+              }
             }}
             isClearable
           />
@@ -280,29 +336,45 @@ function ShopsPage() {
             getOptionKey={(m) => m.id}
             getOptionLabel={(m) => m.name}
             onChange={(m) => {
-              setQuery((old) => {
-                return {
-                  ...old,
-                  "market-id": m?.id,
-                  page: undefined
-                };
-              });
+              const params = new URLSearchParams(searchParams.toString());
+
+              if (m?.id) {
+                params.set("market", m.id.toString());
+              } else {
+                params.delete("market");
+              }
+
+              params.delete("page");
+
+              if (params.size > 0) {
+                router.push("/admin/shops?" + params.toString());
+              } else {
+                router.push("/admin/shops");
+              }
             }}
             isClearable
           />
         </div>
         <div className="col-12 col-md-auto">
           <Select
-            value={query.status}
+            value={query?.status}
             onChange={(evt) => {
               var status = evt.target.value;
-              setQuery((old) => {
-                return {
-                  ...old,
-                  page: undefined,
-                  status: !status ? undefined : (status as ShopStatus)
-                };
-              });
+              const params = new URLSearchParams(searchParams.toString());
+
+              if (status) {
+                params.set("status", status);
+              } else {
+                params.delete("status");
+              }
+
+              params.delete("page");
+
+              if (params.size > 0) {
+                router.push("/admin/shops?" + params.toString());
+              } else {
+                router.push("/admin/shops");
+              }
             }}
           >
             <option value="">All status</option>
@@ -317,11 +389,24 @@ function ShopsPage() {
               id="featuredCheck"
               className="form-check-input"
               type="checkbox"
-              checked={query.featured ?? false}
+              checked={query?.featured ?? false}
               onChange={(evt) => {
-                setQuery((old) => {
-                  return { ...old, featured: evt.target.checked };
-                });
+                const checked = evt.target.checked;
+                const params = new URLSearchParams(searchParams.toString());
+
+                if (checked) {
+                  params.set("featured", "true");
+                } else {
+                  params.delete("featured");
+                }
+
+                params.delete("page");
+
+                if (params.size > 0) {
+                  router.push("/admin/shops?" + params.toString());
+                } else {
+                  router.push("/admin/shops");
+                }
               }}
             ></input>
             <label

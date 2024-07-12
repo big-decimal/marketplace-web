@@ -4,7 +4,6 @@ import makeApiRequest from "@/common/make-api-request";
 import { Discount, PageData, Product } from "@/common/models";
 import {
   buildQueryParams,
-  debounce,
   formatNumber,
   parseErrorResponse,
   validateResponse
@@ -15,7 +14,8 @@ import Loading from "@/components/Loading";
 import Pagination from "@/components/Pagination";
 import { Input } from "@/components/forms";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import useSWR from "swr";
 
@@ -92,25 +92,33 @@ const FeaturedCheck = ({
 };
 
 function ProductsPage() {
-  const [query, setQuery] = useState<ProductQuery>({});
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const [query, setQuery] = useState<ProductQuery>();
+
+  const qInputRef = useRef<HTMLInputElement>(null);
 
   const { data, error, isLoading, mutate } = useSWR(
     ["/admin/products", query],
-    ([url, q]) => getProducts(q),
+    ([url, q]) => (q ? getProducts(q) : undefined),
     {
       revalidateOnFocus: false
     }
   );
 
-  const updateInput = debounce((v) => {
-    setQuery((old) => {
-      return {
-        ...old,
-        page: undefined,
-        q: !v ? undefined : v
-      };
+  useEffect(() => {
+    const page = searchParams.get("page");
+    const q = searchParams.get("q");
+    const featured = searchParams.get("featured");
+    const discount = searchParams.get("discount");
+    setQuery({
+      q: q ?? undefined,
+      featured: featured === "true" ? true : undefined,
+      discount: discount === "true" ? true : undefined,
+      page: page && !isNaN(parseInt(page)) ? parseInt(page) : undefined
     });
-  }, 800);
+  }, [searchParams]);
 
   const discountView = (d?: Discount) => {
     if (d?.type === "PERCENTAGE") {
@@ -125,15 +133,15 @@ function ProductsPage() {
   };
 
   const content = () => {
-    if (isLoading) {
-      return <Loading />;
-    }
-
     if (error) {
       return <Alert message={parseErrorResponse(error)} variant="danger" />;
     }
 
-    if (data?.totalElements === 0) {
+    if (!data || isLoading) {
+      return <Loading />;
+    }
+
+    if (data.totalElements === 0) {
       return <Alert message="No products found" variant="info" />;
     }
 
@@ -143,6 +151,9 @@ function ProductsPage() {
           <table className="table align-middle">
             <thead className="text-nowrap align-middle">
               <tr>
+                <th scope="col" style={{ minWidth: 50 }}>
+                  NO.
+                </th>
                 <th scope="col" style={{ minWidth: 100 }}>
                   IMAGE
                 </th>
@@ -164,9 +175,10 @@ function ProductsPage() {
               </tr>
             </thead>
             <tbody>
-              {data?.contents?.map((p, i) => {
+              {data.contents.map((p, i) => {
                 return (
                   <tr key={p.id}>
+                    <td>{(i + 1) * (data.currentPage + 1)}</td>
                     <td className="py-3">
                       <img
                         className="rounded border"
@@ -199,9 +211,19 @@ function ProductsPage() {
             currentPage={data?.currentPage}
             totalPage={data?.totalPage}
             onChange={(p) => {
-              setQuery((old) => {
-                return { ...old, page: p };
-              });
+              const params = new URLSearchParams(searchParams.toString());
+
+              if (p > 0) {
+                params.set("page", p.toString());
+              } else {
+                params.delete("page");
+              }
+
+              if (params.size > 0) {
+                router.push("/admin/products?" + params.toString());
+              } else {
+                router.push("/admin/products");
+              }
             }}
           />
         </div>
@@ -218,28 +240,58 @@ function ProductsPage() {
 
         <div className="col-12 col-md-auto">
           <div className="d-flex flex-wrap align-items-center gap-3">
-            <div>
+            <form
+              onSubmit={(evt) => {
+                evt.preventDefault();
+                const params = new URLSearchParams(searchParams.toString());
+                const q = qInputRef.current?.value;
+
+                if (q) {
+                  params.set("q", q);
+                } else {
+                  params.delete("q");
+                }
+
+                params.delete("page");
+
+                if (params.size > 0) {
+                  router.push("/admin/products?" + params.toString());
+                } else {
+                  router.push("/admin/products");
+                }
+              }}
+            >
               <Input
-                id="searchInput"
+                ref={qInputRef}
                 name="q"
                 type="search"
                 placeholder="Search..."
-                onChange={(evt) => {
-                  var q = evt.target.value;
-                  updateInput(q);
-                }}
+                defaultValue={query?.q ?? ""}
               />
-            </div>
+            </form>
             <div className="form-check">
               <input
                 id="featuredCheck"
                 className="form-check-input"
                 type="checkbox"
-                checked={query.featured ?? false}
+                checked={query?.featured ?? false}
                 onChange={(evt) => {
-                  setQuery((old) => {
-                    return { ...old, featured: evt.target.checked };
-                  });
+                  const checked = evt.target.checked;
+                  const params = new URLSearchParams(searchParams.toString());
+
+                  if (checked) {
+                    params.set("featured", "true");
+                  } else {
+                    params.delete("featured");
+                  }
+
+                  params.delete("page");
+
+                  if (params.size > 0) {
+                    router.push("/admin/products?" + params.toString());
+                  } else {
+                    router.push("/admin/products");
+                  }
                 }}
               ></input>
               <label
@@ -254,11 +306,24 @@ function ProductsPage() {
                 id="discountCheck"
                 className="form-check-input"
                 type="checkbox"
-                checked={query.discount ?? false}
+                checked={query?.discount ?? false}
                 onChange={(evt) => {
-                  setQuery((old) => {
-                    return { ...old, discount: evt.target.checked };
-                  });
+                  const checked = evt.target.checked;
+                  const params = new URLSearchParams(searchParams.toString());
+
+                  if (checked) {
+                    params.set("discount", "true");
+                  } else {
+                    params.delete("discount");
+                  }
+
+                  params.delete("page");
+
+                  if (params.size > 0) {
+                    router.push("/admin/products?" + params.toString());
+                  } else {
+                    router.push("/admin/products");
+                  }
                 }}
               ></input>
               <label
@@ -276,4 +341,7 @@ function ProductsPage() {
   );
 }
 
-export default withAuthorization(ProductsPage, ["PRODUCT_READ", "PRODUCT_WRITE"]);
+export default withAuthorization(ProductsPage, [
+  "PRODUCT_READ",
+  "PRODUCT_WRITE"
+]);

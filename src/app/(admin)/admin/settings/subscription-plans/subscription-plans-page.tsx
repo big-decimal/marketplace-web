@@ -85,6 +85,9 @@ function SubscriptionPlansPage() {
                 <th scope="col" style={{ minWidth: 100 }}>
                   PROMO USEABLE
                 </th>
+                <th scope="col" style={{ minWidth: 100 }}>
+                  TRIAL
+                </th>
                 <th scope="col" style={{ minWidth: 250 }}>
                   CREATED AT
                 </th>
@@ -108,6 +111,9 @@ function SubscriptionPlansPage() {
                     </td>
                     <td>
                       <span>{p.promoUsable ? "YES" : "NO"}</span>
+                    </td>
+                    <td>
+                      <span>{p.trial ? "YES" : "NO"}</span>
                     </td>
                     <td>
                       <span className="text-nowrap">

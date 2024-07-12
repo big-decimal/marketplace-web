@@ -74,3 +74,31 @@ export async function verifyPhoneNumber(userId: number) {
 
   await validateResponse(resp);
 }
+
+export async function enableUser(userId: number) {
+  const url = `/admin/users/${userId}/enable`;
+
+  const resp = await makeApiRequest({
+    url,
+    options: {
+      method: "PUT"
+    },
+    authenticated: true
+  });
+
+  await validateResponse(resp);
+}
+
+export async function disableUser(userId: number) {
+  const url = `/admin/users/${userId}/disable`;
+
+  const resp = await makeApiRequest({
+    url,
+    options: {
+      method: "PUT"
+    },
+    authenticated: true
+  });
+
+  await validateResponse(resp);
+}

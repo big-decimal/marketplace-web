@@ -89,15 +89,15 @@ function SubscripionHistoryPage() {
   };
 
   const content = () => {
-    if (isLoading) {
-      return <Loading />;
-    }
-
     if (error) {
       return <Alert message={parseErrorResponse(error)} variant="danger" />;
     }
 
-    if (!data?.contents || data.contents.length === 0) {
+    if (!data || isLoading) {
+      return <Loading />;
+    }
+
+    if (data.contents.length === 0) {
       return <Alert message="No subscriptions found" />;
     }
 
@@ -107,6 +107,9 @@ function SubscripionHistoryPage() {
           <table className="table align-middle">
             <thead className="text-nowrap align-middle">
               <tr>
+                <th scope="col" style={{ minWidth: 50 }}>
+                  NO.
+                </th>
                 <th scope="col" style={{ minWidth: 200 }}>
                   SUBSCRIBE BY
                 </th>
@@ -134,6 +137,7 @@ function SubscripionHistoryPage() {
               {data.contents.map((ss, i) => {
                 return (
                   <tr key={ss.invoiceNo}>
+                    <td>{(i + 1) * (data.currentPage + 1)}</td>
                     <th scope="row" className="py-3">
                       <Link
                         href={`/admin/shops/${ss.shop?.id}`}

@@ -137,7 +137,7 @@ function PromoCodeEdit({ id }: { id: number }) {
                       type="text"
                       readOnly
                       disabled={data?.used ?? false}
-                      placeholder="Enter promo code"
+                      placeholder="Generate promo code"
                       className={`${errors.code?.message ? "is-invalid" : ""}`}
                       {...register("code", {
                         required: "Required promo code"

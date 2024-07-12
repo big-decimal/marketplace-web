@@ -23,12 +23,12 @@ function ProductGridItem({ value, hideAction = false }: ProductGridItemProps) {
 
   if (value.discount) {
     price = (
-      <>
-        <del className="text-muted small fw-normal me-1">
+      <div className="d-flex flex-wrap align-items-center">
+        <del className="text-muted small fw-normal me-1 text-truncate">
           {formatNumber(value.price ?? 0)}&nbsp;Ks
         </del>
-        {formatNumber(transformDiscount(value.discount, value.price))}&nbsp;Ks
-      </>
+        <span className="text-truncate">{formatNumber(transformDiscount(value.discount, value.price))}&nbsp;Ks</span>
+      </div>
     );
   }
 

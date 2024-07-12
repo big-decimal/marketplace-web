@@ -162,9 +162,6 @@ function SubscriptionPlanEdit({ id }: { id: number }) {
                       error={errors.price?.message}
                       {...register("price", {
                         validate: (v) => {
-                          if (!v) {
-                            return "Please enter price";
-                          }
                           const floatRegex = "^([0-9]*[.])?[0-9]+$";
                           if (!`${v}`.match(floatRegex)) {
                             return "Invalid price input";
@@ -197,7 +194,7 @@ function SubscriptionPlanEdit({ id }: { id: number }) {
                     )}
                   </div>
 
-                  <div className="col-auto">
+                  <div className="col-lg-12">
                     <div className="form-check form-switch">
                       <input
                         id="promoUseableCheck"
@@ -211,6 +208,23 @@ function SubscriptionPlanEdit({ id }: { id: number }) {
                         className="form-check-label fw-medium"
                       >
                         Promo Useable
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-lg-12">
+                    <div className="form-check form-switch">
+                      <input
+                        id="trialCheck"
+                        className="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        {...register("trial")}
+                      ></input>
+                      <label
+                        htmlFor="trialCheck"
+                        className="form-check-label fw-medium"
+                      >
+                        Trial
                       </label>
                     </div>
                   </div>

@@ -14,7 +14,8 @@ import Loading from "@/components/Loading";
 import Pagination from "@/components/Pagination";
 import { RiDeleteBinLine, RiPencilFill } from "@remixicon/react";
 import Link from "next/link";
-import { useContext, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import useSWR from "swr";
 
@@ -47,6 +48,8 @@ const removeStaffUser = async (userId: number) => {
 function StaffUsersPage() {
   const { user } = useContext(AuthenticationContext);
   const progressContext = useContext(ProgressContext);
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   const { write } = useMemo(() => {
     return {
@@ -58,28 +61,34 @@ function StaffUsersPage() {
 
   const [staff, setStaff] = useState<User>();
 
-  const [query, setQuery] = useState<UserQuery>({
-    "staff-only": true
-  });
+  const [query, setQuery] = useState<UserQuery>();
 
   const { data, error, isLoading, mutate } = useSWR(
     ["/admin/staff-users", query],
-    ([url, q]) => getUsers(q),
+    ([url, q]) => q ? getUsers(q) : undefined,
     {
       revalidateOnFocus: false
     }
   );
 
-  const content = () => {
-    if (isLoading) {
-      return <Loading />;
-    }
+  useEffect(() => {
+    const page = searchParams.get("page");
+    setQuery({
+      "staff-only": true,
+      page: page && !isNaN(parseInt(page)) ? parseInt(page) : undefined
+    });
+  }, [searchParams]);
 
+  const content = () => {
     if (error) {
       return <Alert message={parseErrorResponse(error)} variant="danger" />;
     }
 
-    if (data?.totalElements === 0) {
+    if (!data || isLoading) {
+      return <Loading />;
+    }
+
+    if (data.totalElements === 0) {
       return <Alert message="No users found" variant="info" />;
     }
 
@@ -89,11 +98,11 @@ function StaffUsersPage() {
           <table className="table align-middle">
             <thead className="text-nowrap align-middle">
               <tr>
+                <th scope="col" style={{ minWidth: 50 }}>
+                  NO.
+                </th>
                 <th scope="col" style={{ minWidth: 300 }}>
                   NAME
-                </th>
-                <th scope="col" style={{ minWidth: 200 }}>
-                  EMAIL
                 </th>
                 <th scope="col" style={{ minWidth: 150 }}>
                   PHONE
@@ -107,12 +116,12 @@ function StaffUsersPage() {
               </tr>
             </thead>
             <tbody>
-              {data?.contents?.map((u, i) => (
+              {data.contents.map((u, i) => (
                 <tr key={u.id}>
+                  <td>{(i + 1) * (data.currentPage + 1)}</td>
                   <th scope="row" className="py-3">
                     {u.name}
                   </th>
-                  <td>{u.email ?? ""}</td>
                   <td>{u.phone ?? ""}</td>
                   <td>{u.role}</td>
                   <td>
@@ -147,9 +156,19 @@ function StaffUsersPage() {
             currentPage={data?.currentPage}
             totalPage={data?.totalPage}
             onChange={(p) => {
-              setQuery((old) => {
-                return { ...old, page: p };
-              });
+              const params = new URLSearchParams(searchParams.toString());
+
+              if (p > 0) {
+                params.set("page", p.toString());
+              } else {
+                params.delete("page");
+              }
+
+              if (params.size > 0) {
+                router.push("/admin/settings/staff-users?" + params.toString());
+              } else {
+                router.push("/admin/settings/staff-users");
+              }
             }}
           />
         </div>

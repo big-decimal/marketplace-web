@@ -485,6 +485,7 @@ export interface SubscriptionPlan {
   duration?: number;
   price?: number;
   promoUsable?: boolean;
+  trial?: boolean;
   audit?: Audit;
 }
 
