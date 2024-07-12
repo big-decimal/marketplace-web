@@ -116,7 +116,7 @@ function ProductsPage() {
       q: q ?? undefined,
       featured: featured === "true" ? true : undefined,
       discount: discount === "true" ? true : undefined,
-      page: page && !isNaN(parseInt(page)) ? parseInt(page) : undefined
+      page: page && !isNaN(parseInt(page)) ? parseInt(page) - 1 : undefined
     });
   }, [searchParams]);
 
@@ -178,7 +178,7 @@ function ProductsPage() {
               {data.contents.map((p, i) => {
                 return (
                   <tr key={p.id}>
-                    <td>{(i + 1) * (data.currentPage + 1)}</td>
+                    <td>{i + 1 + data.currentPage * 10}</td>
                     <td className="py-3">
                       <img
                         className="rounded border"
@@ -214,7 +214,7 @@ function ProductsPage() {
               const params = new URLSearchParams(searchParams.toString());
 
               if (p > 0) {
-                params.set("page", p.toString());
+                params.set("page", `${p + 1}`);
               } else {
                 params.delete("page");
               }

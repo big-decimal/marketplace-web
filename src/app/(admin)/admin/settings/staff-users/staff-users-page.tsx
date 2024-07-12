@@ -65,7 +65,7 @@ function StaffUsersPage() {
 
   const { data, error, isLoading, mutate } = useSWR(
     ["/admin/staff-users", query],
-    ([url, q]) => q ? getUsers(q) : undefined,
+    ([url, q]) => (q ? getUsers(q) : undefined),
     {
       revalidateOnFocus: false
     }
@@ -75,7 +75,7 @@ function StaffUsersPage() {
     const page = searchParams.get("page");
     setQuery({
       "staff-only": true,
-      page: page && !isNaN(parseInt(page)) ? parseInt(page) : undefined
+      page: page && !isNaN(parseInt(page)) ? parseInt(page) - 1 : undefined
     });
   }, [searchParams]);
 
@@ -118,7 +118,7 @@ function StaffUsersPage() {
             <tbody>
               {data.contents.map((u, i) => (
                 <tr key={u.id}>
-                  <td>{(i + 1) * (data.currentPage + 1)}</td>
+                  <td>{i + 1 + data.currentPage * 10}</td>
                   <th scope="row" className="py-3">
                     {u.name}
                   </th>
@@ -159,7 +159,7 @@ function StaffUsersPage() {
               const params = new URLSearchParams(searchParams.toString());
 
               if (p > 0) {
-                params.set("page", p.toString());
+                params.set("page", `${p + 1}`);
               } else {
                 params.delete("page");
               }

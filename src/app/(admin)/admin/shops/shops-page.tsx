@@ -126,7 +126,7 @@ function ShopsPage() {
         ? (status as ShopStatus)
         : undefined,
       featured: featured === "true" ? true : undefined,
-      page: page && !isNaN(parseInt(page)) ? parseInt(page) : undefined
+      page: page && !isNaN(parseInt(page)) ? parseInt(page) - 1 : undefined
     });
   }, [searchParams]);
 
@@ -198,7 +198,7 @@ function ShopsPage() {
               {data.contents.map((s, i) => {
                 return (
                   <tr key={s.id}>
-                    <td>{(i + 1) * (data.currentPage + 1)}</td>
+                     <td>{(i + 1) + (data.currentPage * 10)}</td>
                     <td className="py-3">
                       <img
                         className="rounded border"
@@ -242,7 +242,7 @@ function ShopsPage() {
               const params = new URLSearchParams(searchParams.toString());
 
               if (p > 0) {
-                params.set("page", p.toString());
+                params.set("page", `${p + 1}`);
               } else {
                 params.delete("page");
               }

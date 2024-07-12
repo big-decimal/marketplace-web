@@ -82,7 +82,7 @@ function UsersPage() {
     const phone = searchParams.get("phone");
     setQuery({
       phone: phone ?? undefined,
-      page: page && !isNaN(parseInt(page)) ? parseInt(page) : undefined
+      page: page && !isNaN(parseInt(page)) ? parseInt(page) - 1 : undefined
     });
   }, [searchParams]);
 
@@ -176,7 +176,7 @@ function UsersPage() {
             <tbody>
               {data.contents.map((u, i) => (
                 <tr key={u.id}>
-                  <td>{(i + 1) * (data.currentPage + 1)}</td>
+                  <td>{(i + 1) + (data.currentPage * 10)}</td>
                   <th scope="row" className="py-3">
                     {u.name}
                   </th>
@@ -305,7 +305,7 @@ function UsersPage() {
               const params = new URLSearchParams(searchParams.toString());
 
               if (p > 0) {
-                params.set("page", p.toString());
+                params.set("page", `${p + 1}`);
               } else {
                 params.delete("page");
               }

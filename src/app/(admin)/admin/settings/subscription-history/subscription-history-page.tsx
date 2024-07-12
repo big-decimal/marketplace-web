@@ -137,7 +137,7 @@ function SubscripionHistoryPage() {
               {data.contents.map((ss, i) => {
                 return (
                   <tr key={ss.invoiceNo}>
-                    <td>{(i + 1) * (data.currentPage + 1)}</td>
+                    <td>{(i + 1) + (data.currentPage * 10)}</td>
                     <th scope="row" className="py-3">
                       <Link
                         href={`/admin/shops/${ss.shop?.id}`}
