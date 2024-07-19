@@ -163,7 +163,7 @@ const HomePage = ({ data }: { data?: HomeData }) => {
                       }}
                     />
                   </div>
-                  <h6 className="text-truncate text-dark">{s.name}</h6>
+                  <div className="fw-medium text-center text-dark">{s.name}</div>
                 </Link>
               </SwiperSlide>
             );

@@ -60,7 +60,7 @@ const saveBanner = async (values: BannerForm) => {
 function BannerEdit({ id }: { id: number }) {
   const router = useRouter();
 
-  const { data, error, isLoading, isValidating, mutate } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR(
     `/admin/banners/${id}`,
     () => getBanner(id),
     {

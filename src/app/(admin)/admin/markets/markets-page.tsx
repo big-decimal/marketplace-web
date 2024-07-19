@@ -19,6 +19,7 @@ import { useContext, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import useSWR from "swr";
 import MarketEdit from "./market-edit";
+import Link from "next/link";
 
 const deleteMarket = async (id: number) => {
   const url = `/admin/markets/${id}`;
@@ -77,6 +78,9 @@ function MarketsPage() {
           <table className="table align-middle">
             <thead className="text-nowrap align-middle">
               <tr>
+                <th scope="col" style={{ minWidth: 50 }}>
+                  NO.
+                </th>
                 <th scope="col" style={{ minWidth: 400 }}>
                   <div className="hstack gap-2">NAME</div>
                 </th>
@@ -92,8 +96,14 @@ function MarketsPage() {
               {data.contents.map((m, i) => {
                 return (
                   <tr key={m.id}>
+                    <td>{i + 1 + data.currentPage * 10}</td>
                     <th scope="row" className="w-100 py-3">
-                      {m.name}
+                      <Link
+                        href={`/admin/markets/${m.id}/shops`}
+                        className="link-dark"
+                      >
+                        {m.name}
+                      </Link>
                     </th>
                     <td>{formatNumber(m.shopCount ?? 0)}</td>
                     <td>

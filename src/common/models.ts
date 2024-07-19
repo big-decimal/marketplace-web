@@ -93,7 +93,7 @@ export interface HomeData {
 
 export interface Banner {
   id: number;
-  link: string;
+  link?: string;
   image: string;
   position: number;
 }

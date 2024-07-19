@@ -5,7 +5,7 @@ import {
 } from "@/services/CategoryService";
 import { getAllCities } from "@/services/CityService";
 import { findDiscounts } from "@/services/DiscountService";
-import { getMarkets } from "@/services/MarketService";
+import { getMarketById, getMarkets } from "@/services/MarketService";
 import { getProductById } from "@/services/ProductService";
 import { getPendingOrderCount, getShopById } from "@/services/ShopService";
 import { getLoginUser } from "@/services/UserService";
@@ -112,6 +112,23 @@ export function useShop(shopId: number) {
 
   return {
     shop: data,
+    error: error,
+    isLoading: isLoading,
+    mutate: mutate
+  };
+}
+
+export function useMarket(marketId: number) {
+  const { data, error, isLoading, mutate } = useSWR(
+    `/admin/markets/${marketId}`,
+    () => getMarketById(marketId),
+    {
+      revalidateOnFocus: false
+    }
+  );
+
+  return {
+    market: data,
     error: error,
     isLoading: isLoading,
     mutate: mutate

@@ -25,6 +25,7 @@ export interface ShopQuery {
   q?: string;
   "city-id"?: number;
   "market-id"?: number;
+  "expire-before"?: number;
   status?: ShopStatus;
   expired?: boolean;
   featured?: boolean;
@@ -117,6 +118,7 @@ function ShopsPage() {
     const market = searchParams.get("market");
     const status = searchParams.get("status");
     const featured = searchParams.get("featured");
+    const expireBefore = searchParams.get("expire-before");
     setQuery({
       q: q ?? undefined,
       "city-id": city && !isNaN(parseInt(city)) ? parseInt(city) : undefined,
@@ -126,6 +128,10 @@ function ShopsPage() {
         ? (status as ShopStatus)
         : undefined,
       featured: featured === "true" ? true : undefined,
+      "expire-before":
+        expireBefore && !isNaN(parseInt(expireBefore))
+          ? parseInt(expireBefore)
+          : undefined,
       page: page && !isNaN(parseInt(page)) ? parseInt(page) - 1 : undefined
     });
   }, [searchParams]);
@@ -198,7 +204,7 @@ function ShopsPage() {
               {data.contents.map((s, i) => {
                 return (
                   <tr key={s.id}>
-                     <td>{(i + 1) + (data.currentPage * 10)}</td>
+                    <td>{i + 1 + data.currentPage * 10}</td>
                     <td className="py-3">
                       <img
                         className="rounded border"
@@ -261,11 +267,12 @@ function ShopsPage() {
 
   return (
     <>
-      <div className="row g-3 mb-4">
+      <div className="row g-3 mb-3">
         <div className="col-12 col-md">
           <h2 className="mb-0">Shops</h2>
         </div>
-
+      </div>
+      <div className="row g-3 mb-4">
         <div className="col-12 col-md-auto">
           <form
             onSubmit={(evt) => {
@@ -414,6 +421,40 @@ function ShopsPage() {
               className="form-check-label fw-medium"
             >
               Featured
+            </label>
+          </div>
+        </div>
+        <div className="col-12 col-md-auto hstack">
+          <div className="form-check">
+            <input
+              id="expireBeforeCheck"
+              className="form-check-input"
+              type="checkbox"
+              checked={(query?.["expire-before"] ?? 0) > 0}
+              onChange={(evt) => {
+                const checked = evt.target.checked;
+                const params = new URLSearchParams(searchParams.toString());
+
+                if (checked) {
+                  params.set("expire-before", "7");
+                } else {
+                  params.delete("expire-before");
+                }
+
+                params.delete("page");
+
+                if (params.size > 0) {
+                  router.push("/admin/shops?" + params.toString());
+                } else {
+                  router.push("/admin/shops");
+                }
+              }}
+            ></input>
+            <label
+              htmlFor="expireBeforeCheck"
+              className="form-check-label fw-medium"
+            >
+              Expire within 7 days
             </label>
           </div>
         </div>

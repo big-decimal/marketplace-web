@@ -2,7 +2,7 @@
 import { withAuthentication } from "@/common/WithAuthentication";
 import { ForbiddenError } from "@/common/customs";
 import { useShop } from "@/common/hooks";
-import { parseErrorResponse } from "@/common/utils";
+import { parseErrorResponse, pluralize } from "@/common/utils";
 import Alert from "@/components/Alert";
 import Loading from "@/components/Loading";
 import { ShopHeading } from "@/components/shop";
@@ -71,7 +71,10 @@ function MerchantLayoutWrapper({
 
     if (
       (shop.expiredAt ?? 0) < currentTime &&
-      !segments.find((v) => v === "subscriptions" || v === "renew-subscription" || v === "setting")
+      !segments.find(
+        (v) =>
+          v === "subscriptions" || v === "renew-subscription" || v === "setting"
+      )
     ) {
       return (
         <Alert
@@ -92,8 +95,33 @@ function MerchantLayoutWrapper({
       );
     }
 
+    const diff = (shop.expiredAt ?? 0) - currentTime;
+    const days = diff / (60 * 60 * 24 * 1000);
+    let expireWarning = <></>;
+
+    if (days <= 7) {
+      expireWarning = (
+        <Alert
+          message={
+            <div>
+              Your subscription will expire in {pluralize(Math.round(days), "day")}.
+              <Link
+                href={`/profile/shops/${shopId}/renew-subscription`}
+                className="ms-1 fw-semibold link-anchor"
+              >
+                Renew subscriptions
+              </Link>
+              .
+            </div>
+          }
+          variant="warning"
+        />
+      );
+    }
+
     return (
       <>
+        {expireWarning}
         <div className="rounded border overflow-hidden">
           <ShopHeading shop={shop} isMember={true} />
         </div>
@@ -110,31 +138,33 @@ function MerchantLayoutWrapper({
 
   return (
     <>
-      {shop && <div className="header-bar">
-        <div className="container py-4">
-          <nav aria-label="breadcrumb">
-            <ol
-              className="breadcrumb mb-0"
-              style={
-                {
-                  "--bs-breadcrumb-divider-color": "#bbb",
-                  "--bs-breadcrumb-item-active-color": "#bbb"
-                } as CSSProperties
-              }
-            >
-              <li className="breadcrumb-item">
-                <Link href="/profile">Profile</Link>
-              </li>
-              <li className="breadcrumb-item">
-                <Link href="/profile/shops">Shops</Link>
-              </li>
-              <li className="breadcrumb-item active" aria-current="page">
-                {shop.name}
-              </li>
-            </ol>
-          </nav>
+      {shop && (
+        <div className="header-bar">
+          <div className="container py-4">
+            <nav aria-label="breadcrumb">
+              <ol
+                className="breadcrumb mb-0"
+                style={
+                  {
+                    "--bs-breadcrumb-divider-color": "#bbb",
+                    "--bs-breadcrumb-item-active-color": "#bbb"
+                  } as CSSProperties
+                }
+              >
+                <li className="breadcrumb-item">
+                  <Link href="/profile">Profile</Link>
+                </li>
+                <li className="breadcrumb-item">
+                  <Link href="/profile/shops">Shops</Link>
+                </li>
+                <li className="breadcrumb-item active" aria-current="page">
+                  {shop.name}
+                </li>
+              </ol>
+            </nav>
+          </div>
         </div>
-      </div>}
+      )}
       <div className="container py-3 mb-5">{content()}</div>
     </>
   );

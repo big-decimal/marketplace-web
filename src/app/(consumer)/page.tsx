@@ -8,7 +8,7 @@ const getHomeData = cache(async () => {
   const url = getAPIBasePath() + "/content/home";
 
   const resp = await fetch(url, {
-    cache: "no-cache",
+    cache: "no-store",
     headers: {
       "Accept-Language": "en"
     }

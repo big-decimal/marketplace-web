@@ -40,3 +40,22 @@ export async function getMarkets(query: MarketQuery) {
 
   return resp.json() as Promise<PageData<Market>>;
 }
+
+export async function getMarketById(id: number) {
+  const url = `/admin/markets/${id}`;
+
+  const resp = await makeApiRequest({
+    url,
+    options: {
+      cache: "no-store"
+    },
+    authenticated: true,
+  });
+
+  await validateResponse(resp, true);
+
+  return resp
+    .json()
+    .then((json) => json as Market)
+    .catch((e) => null);
+}
