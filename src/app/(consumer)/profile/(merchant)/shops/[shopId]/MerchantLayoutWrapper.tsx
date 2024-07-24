@@ -104,7 +104,9 @@ function MerchantLayoutWrapper({
         <Alert
           message={
             <div>
-              Your subscription will expire in {pluralize(Math.round(days), "day")}.
+              {Math.round(days) <= 0
+                ? "Your subscription is expired."
+                : `Your subscription will expire in ${pluralize(Math.round(days), "day")}.`}
               <Link
                 href={`/profile/shops/${shopId}/renew-subscription`}
                 className="ms-1 fw-semibold link-anchor"

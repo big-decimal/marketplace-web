@@ -12,13 +12,17 @@ import { withAuthorization } from "@/common/withAuthorization";
 import Alert from "@/components/Alert";
 import Loading from "@/components/Loading";
 import Pagination from "@/components/Pagination";
+import ProgressButton from "@/components/ProgressButton";
+import dayjs from "dayjs";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import useSWR from "swr";
+import * as XLSX from "xlsx";
 
-const getShops = async (marketId: number, page: number) => {
-  const url = `/admin/markets/${marketId}/shops?page=${page}`;
+const getShops = async (marketId: number, limit: number, page: number) => {
+  const url = `/admin/markets/${marketId}/shops?limit=${limit}&page=${page}`;
   const resp = await makeApiRequest({ url, authenticated: true });
 
   await validateResponse(resp);
@@ -32,11 +36,14 @@ function MarketShopsPage({ marketId }: { marketId: number }) {
 
   const [page, setPage] = useState<number>();
 
+  const [exporting, setExporting] = useState(false);
+
   const marketState = useMarket(marketId);
 
   const { data, error, isLoading } = useSWR(
     [`/admin/market/${marketId}/shops`, page],
-    ([url, p]) => (typeof p !== 'undefined' ? getShops(marketId, p) : undefined),
+    ([url, p]) =>
+      typeof p !== "undefined" ? getShops(marketId, 10, p) : undefined,
     {
       revalidateOnFocus: false
     }
@@ -46,6 +53,71 @@ function MarketShopsPage({ marketId }: { marketId: number }) {
     const page = searchParams.get("page");
     setPage(page && !isNaN(parseInt(page)) ? parseInt(page) - 1 : 0);
   }, [searchParams]);
+
+  const exportToExcel = async (market: Market) => {
+    try {
+      setExporting(true);
+      const shops = await getShops(marketId, 0, 0);
+
+      if (shops.contents.length <= 0) {
+        return;
+      }
+
+      const rows = shops.contents.map((s) => {
+        return {
+          name: s.name,
+          headline: s.headline,
+          ownerName: s.legal?.ownerName ?? "--",
+          sellerName: s.legal?.sellerName ?? "--",
+          shopNumber: s.legal?.shopNumber ?? "--",
+          createdAt: dayjs(s.audit?.createdAt ?? 0).format("YYYY-MM-DD"),
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "shops");
+      XLSX.utils.sheet_add_aoa(
+        worksheet,
+        [
+          [
+            "Name",
+            "Headline",
+            "Owner Name",
+            "Seller Name",
+            "Shop No.",
+            "Created At"
+          ]
+        ],
+        { origin: "A1" }
+      );
+
+      const name_max_width = rows.reduce(
+        (w, r) => Math.max(w, r.name?.length ?? 0),
+        10
+      );
+      const headline_max_width = rows.reduce(
+        (w, r) => Math.max(w, r.headline?.length ?? 0),
+        10
+      );
+      worksheet["!cols"] = [
+        { wch: name_max_width },
+        { wch: headline_max_width },
+        { wch: 20 },
+        { wch: 20 },
+        { wch: 10 },
+        { wch: 10 },
+      ];
+
+      XLSX.writeFile(workbook, `${market.name}.xlsx`, { compression: true });
+
+      toast.success("Excel exported!");
+    } catch (error) {
+      toast.error(parseErrorResponse(error));
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const content = () => {
     if (error) {
@@ -108,15 +180,21 @@ function MarketShopsPage({ marketId }: { marketId: number }) {
                       <div className="vstack small">
                         <div className="hstack">
                           <span className="fw-medium">Owner Name:</span>
-                          <span className="text-muted ms-1">{s.legal?.ownerName ?? "--"}</span>
+                          <span className="text-muted ms-1">
+                            {s.legal?.ownerName ?? "--"}
+                          </span>
                         </div>
                         <div className="hstack">
                           <span className="fw-medium">Seller Name:</span>
-                          <span className="text-muted ms-1">{s.legal?.sellerName ?? "--"}</span>
+                          <span className="text-muted ms-1">
+                            {s.legal?.sellerName ?? "--"}
+                          </span>
                         </div>
                         <div className="hstack">
                           <span className="fw-medium">Shop Number:</span>
-                          <span className="text-muted ms-1">{s.legal?.shopNumber ?? "--"}</span>
+                          <span className="text-muted ms-1">
+                            {s.legal?.shopNumber ?? "--"}
+                          </span>
                         </div>
                       </div>
                     </td>
@@ -143,7 +221,7 @@ function MarketShopsPage({ marketId }: { marketId: number }) {
               if (params.size > 0) {
                 router.push("?" + params.toString());
               } else {
-                router.push("");
+                router.push(`/admin/markets/${marketId}/shops`);
               }
             }}
           />
@@ -153,7 +231,9 @@ function MarketShopsPage({ marketId }: { marketId: number }) {
   };
 
   if (marketState.error) {
-    return <Alert message={parseErrorResponse(marketState.error)} variant="danger" />;
+    return (
+      <Alert message={parseErrorResponse(marketState.error)} variant="danger" />
+    );
   }
 
   if (marketState.isLoading) {
@@ -161,13 +241,13 @@ function MarketShopsPage({ marketId }: { marketId: number }) {
   }
 
   if (!marketState.market) {
-    return <Alert message="No market found" variant="info" />;
+    return <Alert message="Market not found" variant="info" />;
   }
 
   return (
     <>
       <div className="row mb-4 g-3">
-        <div className="col-auto me-auto">
+        <div className="col-12 col-md me-auto">
           <h3 className="fw-semibold mb-1">{marketState.market.name}</h3>
           <nav aria-label="breadcrumb col-12">
             <ol className="breadcrumb mb-1">
@@ -182,7 +262,19 @@ function MarketShopsPage({ marketId }: { marketId: number }) {
             </ol>
           </nav>
         </div>
+
+        <div className="col-12 col-md-auto">
+          <ProgressButton
+            loading={exporting}
+            onClick={async () => {
+              marketState.market && (await exportToExcel(marketState.market));
+            }}
+          >
+            Excel export
+          </ProgressButton>
+        </div>
       </div>
+
       {content()}
     </>
   );

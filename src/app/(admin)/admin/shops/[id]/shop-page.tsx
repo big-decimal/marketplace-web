@@ -97,6 +97,8 @@ function ShopPage({ shopId }: { shopId: number }) {
     return <Alert message="Shop not found" variant="info" />;
   }
 
+  const isExpired = (data.expiredAt ?? 0) < new Date().getTime();
+
   return (
     <>
       <div className="row mb-4 g-3 align-items-center">
@@ -121,14 +123,20 @@ function ShopPage({ shopId }: { shopId: number }) {
           </nav>
         </div>
         <div className="col-lg-6">
-          <div className="hstack gap-2">
+          <div className="d-flex flex-wrap align-items-center gap-2">
             <Link
               href={`/shops/${data.slug}`}
               target={"_blank"}
               className="hstack gap-2 btn btn-default ms-lg-auto"
             >
-              <span>View shop page</span>
+              <span>View public</span>
               <RiExternalLinkLine size={20} />
+            </Link>
+            <Link
+              href={`/admin/shops/${data.id}/products`}
+              className="btn btn-default"
+            >
+              View products
             </Link>
             <Dropdown
               toggle={<span>Update</span>}
@@ -162,6 +170,8 @@ function ShopPage({ shopId }: { shopId: number }) {
           </div>
         </div>
       </div>
+
+      {isExpired && <Alert message="This shop subscription is expired." variant="warning" />}
 
       <div className="position-relative border rounded bg-white vstack overflow-hidden mb-3">
         <ShopHeading shop={data} />

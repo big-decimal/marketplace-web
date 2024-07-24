@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 import makeApiRequest from "@/common/make-api-request";
-import { Discount, PageData, Product } from "@/common/models";
+import { Discount, PageData, Product, Shop } from "@/common/models";
 import {
   buildQueryParams,
   formatNumber,
@@ -13,10 +13,9 @@ import { withAuthorization } from "@/common/withAuthorization";
 import Alert from "@/components/Alert";
 import Loading from "@/components/Loading";
 import Pagination from "@/components/Pagination";
-import { Input } from "@/components/forms";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import useSWR from "swr";
 
@@ -28,6 +27,18 @@ interface ProductQuery {
   discount?: boolean;
   page?: number;
 }
+
+const getShopById = async (shopId: number) => {
+  const url = `/admin/shops/${shopId}`;
+  const resp = await makeApiRequest({ url, authenticated: true });
+
+  await validateResponse(resp, true);
+
+  return resp
+    .json()
+    .then((json) => json as Shop)
+    .catch((e) => undefined);
+};
 
 const getProducts = async (query: ProductQuery) => {
   const q = buildQueryParams({ ...query });
@@ -92,13 +103,19 @@ const FeaturedCheck = ({
   );
 };
 
-function ProductsPage() {
+function ShopProductsPage({ shopId }: { shopId: number }) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const [query, setQuery] = useState<ProductQuery>();
 
-  const qInputRef = useRef<HTMLInputElement>(null);
+  const shopState = useSWR(
+    `/admin/shops/${shopId}`,
+    () => getShopById(shopId),
+    {
+      revalidateOnFocus: false
+    }
+  );
 
   const { data, error, isLoading, mutate } = useSWR(
     ["/admin/products", query],
@@ -110,16 +127,15 @@ function ProductsPage() {
 
   useEffect(() => {
     const page = searchParams.get("page");
-    const q = searchParams.get("q");
     const featured = searchParams.get("featured");
     const discount = searchParams.get("discount");
     setQuery({
-      q: q ?? undefined,
+      "shop-id": shopId,
       featured: featured === "true" ? true : undefined,
       discount: discount === "true" ? true : undefined,
       page: page && !isNaN(parseInt(page)) ? parseInt(page) - 1 : undefined
     });
-  }, [searchParams]);
+  }, [shopId, searchParams]);
 
   const discountView = (d?: Discount) => {
     if (d?.type === "PERCENTAGE") {
@@ -239,9 +255,9 @@ function ProductsPage() {
               }
 
               if (params.size > 0) {
-                router.push("/admin/products?" + params.toString());
+                router.push("?" + params.toString());
               } else {
-                router.push("/admin/products");
+                router.push(`/admin/shops/${shopId}/products`);
               }
             }}
           />
@@ -250,44 +266,48 @@ function ProductsPage() {
     );
   };
 
+  if (shopState.error) {
+    return (
+      <Alert message={parseErrorResponse(shopState.error)} variant="danger" />
+    );
+  }
+
+  if (shopState.isLoading) {
+    return <Loading />;
+  }
+
+  if (!shopState.data) {
+    return <Alert message="Shop not found" variant="info" />;
+  }
+
+  const isExpired = (shopState.data.expiredAt ?? 0) < new Date().getTime();
+
   return (
     <>
       <div className="row g-3 mb-4">
         <div className="col-12 col-md">
-          <h2 className="mb-0">Products</h2>
+          <h3 className="mb-1">{shopState.data.name}</h3>
+          <nav aria-label="breadcrumb col-12">
+            <ol className="breadcrumb mb-1">
+              <li className="breadcrumb-item">
+                <Link href="/admin/shops" className="link-anchor">
+                  All Shops
+                </Link>
+              </li>
+              <li className="breadcrumb-item">
+                <Link href={`/admin/shops/${shopId}`} className="link-anchor">
+                  {shopState.data.name}
+                </Link>
+              </li>
+              <li className="breadcrumb-item active" aria-current="page">
+                Products
+              </li>
+            </ol>
+          </nav>
         </div>
 
         <div className="col-12 col-md-auto">
-          <div className="d-flex flex-wrap align-items-center gap-3">
-            <form
-              onSubmit={(evt) => {
-                evt.preventDefault();
-                const params = new URLSearchParams(searchParams.toString());
-                const q = qInputRef.current?.value;
-
-                if (q) {
-                  params.set("q", q);
-                } else {
-                  params.delete("q");
-                }
-
-                params.delete("page");
-
-                if (params.size > 0) {
-                  router.push("/admin/products?" + params.toString());
-                } else {
-                  router.push("/admin/products");
-                }
-              }}
-            >
-              <Input
-                ref={qInputRef}
-                name="q"
-                type="search"
-                placeholder="Search..."
-                defaultValue={query?.q ?? ""}
-              />
-            </form>
+          <div className="d-flex flex-wrap align-items-center gap-3 h-100">
             <div className="form-check">
               <input
                 id="featuredCheck"
@@ -307,9 +327,9 @@ function ProductsPage() {
                   params.delete("page");
 
                   if (params.size > 0) {
-                    router.push("/admin/products?" + params.toString());
+                    router.push("?" + params.toString());
                   } else {
-                    router.push("/admin/products");
+                    router.push(`/admin/shops/${shopId}/products`);
                   }
                 }}
               ></input>
@@ -339,9 +359,9 @@ function ProductsPage() {
                   params.delete("page");
 
                   if (params.size > 0) {
-                    router.push("/admin/products?" + params.toString());
+                    router.push("?" + params.toString());
                   } else {
-                    router.push("/admin/products");
+                    router.push(`/admin/shops/${shopId}/products`);
                   }
                 }}
               ></input>
@@ -355,12 +375,15 @@ function ProductsPage() {
           </div>
         </div>
       </div>
+      {isExpired && (
+        <Alert message="This shop subscription is expired." variant="warning" />
+      )}
       {content()}
     </>
   );
 }
 
-export default withAuthorization(ProductsPage, [
+export default withAuthorization(ShopProductsPage, [
   "PRODUCT_READ",
   "PRODUCT_WRITE"
 ]);
