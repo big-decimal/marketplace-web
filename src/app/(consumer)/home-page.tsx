@@ -59,12 +59,13 @@ const HomePage = ({ data }: { data?: HomeData }) => {
                     className="rounded-1 overflow-hidden"
                     spaceBetween={0}
                     slidesPerView={1}
+                    loop={true}
                     pagination={{
                       clickable: true
                     }}
                     autoplay={{
                       delay: 3000,
-                      disableOnInteraction: false
+                      disableOnInteraction: false,
                     }}
                     modules={[Autoplay, Pagination]}
                   >
@@ -121,6 +122,7 @@ const HomePage = ({ data }: { data?: HomeData }) => {
           pagination={{
             el: ""
           }}
+          loop={true}
           autoplay={{
             delay: 3000,
             disableOnInteraction: false
