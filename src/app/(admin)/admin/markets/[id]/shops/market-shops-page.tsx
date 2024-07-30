@@ -4,6 +4,7 @@ import { useMarket } from "@/common/hooks";
 import makeApiRequest from "@/common/make-api-request";
 import { Market, PageData, Shop } from "@/common/models";
 import {
+  buildQueryParams,
   formatTimestamp,
   parseErrorResponse,
   validateResponse
@@ -13,16 +14,24 @@ import Alert from "@/components/Alert";
 import Loading from "@/components/Loading";
 import Pagination from "@/components/Pagination";
 import ProgressButton from "@/components/ProgressButton";
+import { Input } from "@/components/forms";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import useSWR from "swr";
 import * as XLSX from "xlsx";
 
-const getShops = async (marketId: number, limit: number, page: number) => {
-  const url = `/admin/markets/${marketId}/shops?limit=${limit}&page=${page}`;
+export interface ShopQuery {
+  q?: string;
+  limit?: number;
+  page?: number;
+}
+
+const getShops = async (marketId: number, query: ShopQuery) => {
+  const params = buildQueryParams(query);
+  const url = `/admin/markets/${marketId}/shops${params}`;
   const resp = await makeApiRequest({ url, authenticated: true });
 
   await validateResponse(resp);
@@ -34,16 +43,17 @@ function MarketShopsPage({ marketId }: { marketId: number }) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [page, setPage] = useState<number>();
+  const qInputRef = useRef<HTMLInputElement>(null);
 
   const [exporting, setExporting] = useState(false);
+
+  const [query, setQuery] = useState<ShopQuery>();
 
   const marketState = useMarket(marketId);
 
   const { data, error, isLoading } = useSWR(
-    [`/admin/market/${marketId}/shops`, page],
-    ([url, p]) =>
-      typeof p !== "undefined" ? getShops(marketId, 10, p) : undefined,
+    [`/admin/market/${marketId}/shops`, query],
+    ([url, q]) => (q ? getShops(marketId, q) : undefined),
     {
       revalidateOnFocus: false
     }
@@ -51,13 +61,17 @@ function MarketShopsPage({ marketId }: { marketId: number }) {
 
   useEffect(() => {
     const page = searchParams.get("page");
-    setPage(page && !isNaN(parseInt(page)) ? parseInt(page) - 1 : 0);
+    const q = searchParams.get("q");
+    setQuery({
+      q: q ?? undefined,
+      page: page && !isNaN(parseInt(page)) ? parseInt(page) - 1 : undefined
+    });
   }, [searchParams]);
 
   const exportToExcel = async (market: Market) => {
     try {
       setExporting(true);
-      const shops = await getShops(marketId, 0, 0);
+      const shops = await getShops(marketId, {});
 
       if (shops.contents.length <= 0) {
         return;
@@ -246,7 +260,7 @@ function MarketShopsPage({ marketId }: { marketId: number }) {
 
   return (
     <>
-      <div className="row mb-4 g-3">
+      <div className="row mb-4 g-3 align-items-center">
         <div className="col-12 col-md me-auto">
           <h3 className="fw-semibold mb-1">{marketState.market.name}</h3>
           <nav aria-label="breadcrumb col-12">
@@ -261,6 +275,38 @@ function MarketShopsPage({ marketId }: { marketId: number }) {
               </li>
             </ol>
           </nav>
+        </div>
+
+        <div className="col-12 col-md-auto">
+          <form
+            onSubmit={(evt) => {
+              evt.preventDefault();
+              const params = new URLSearchParams(searchParams.toString());
+              const q = qInputRef.current?.value;
+
+              if (q) {
+                params.set("q", q);
+              } else {
+                params.delete("q");
+              }
+
+              params.delete("page");
+
+              if (params.size > 0) {
+                router.push("?" + params.toString());
+              } else {
+                router.push(`/admin/markets/${marketId}/shops`);
+              }
+            }}
+          >
+            <Input
+              ref={qInputRef}
+              name="q"
+              type="search"
+              placeholder="Search..."
+              defaultValue={searchParams.get("q") ?? ""}
+            />
+          </form>
         </div>
 
         <div className="col-12 col-md-auto">
